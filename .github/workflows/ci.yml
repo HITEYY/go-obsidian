@@ -96,7 +96,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: hiteyy/go-obsidian
+          images: yuchanshin/go-obsidian
           tags: |
             type=raw,value=latest
             type=sha,format=long
