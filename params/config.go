@@ -174,7 +174,13 @@ var (
 		BPO2Time:                newUint64(0),
 		Ethash:                  nil,
 		Tendermint:              &TendermintConfig{Period: 2, Epoch: 30000, MinStake: big.NewInt(1000000000000000000)}, // 1 ETH minimum stake, 2 second blocks
-		BlobScheduleConfig:      &BlobScheduleConfig{},
+		BlobScheduleConfig: &BlobScheduleConfig{
+			Cancun: DefaultCancunBlobConfig,
+			Prague: DefaultPragueBlobConfig,
+			Osaka:  DefaultOsakaBlobConfig,
+			BPO1:   DefaultBPO1BlobConfig,
+			BPO2:   DefaultBPO2BlobConfig,
+		},
 	}
 	// AllEthashProtocolChanges contains every protocol change (EIPs) introduced
 	// and accepted by the Ethereum core developers into the Ethash consensus.
