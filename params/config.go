@@ -148,7 +148,7 @@ var (
 	}
 	// HoodiChainConfig contains the chain parameters to run a node on the Hoodi test network.
 	HoodiChainConfig = &ChainConfig{
-		ChainID:                 big.NewInt(560048),
+		ChainID:                 big.NewInt(1719),
 		HomesteadBlock:          big.NewInt(0),
 		DAOForkBlock:            nil,
 		DAOForkSupport:          true,
@@ -168,19 +168,13 @@ var (
 		MergeNetsplitBlock:      big.NewInt(0),
 		ShanghaiTime:            newUint64(0),
 		CancunTime:              newUint64(0),
-		PragueTime:              newUint64(1742999832),
-		OsakaTime:               newUint64(1761677592),
-		BPO1Time:                newUint64(1762365720),
-		BPO2Time:                newUint64(1762955544),
-		DepositContractAddress:  common.HexToAddress("0x00000000219ab540356cBB839Cbe05303d7705Fa"),
-		Ethash:                  new(EthashConfig),
-		BlobScheduleConfig: &BlobScheduleConfig{
-			Cancun: DefaultCancunBlobConfig,
-			Prague: DefaultPragueBlobConfig,
-			Osaka:  DefaultOsakaBlobConfig,
-			BPO1:   DefaultBPO1BlobConfig,
-			BPO2:   DefaultBPO2BlobConfig,
-		},
+		PragueTime:              newUint64(0),
+		OsakaTime:               newUint64(0),
+		BPO1Time:                newUint64(0),
+		BPO2Time:                newUint64(0),
+		Ethash:                  nil,
+		Tendermint:              &TendermintConfig{Period: 2, Epoch: 30000, MinStake: big.NewInt(1000000000000000000)}, // 1 ETH minimum stake, 2 second blocks
+		BlobScheduleConfig:      &BlobScheduleConfig{},
 	}
 	// AllEthashProtocolChanges contains every protocol change (EIPs) introduced
 	// and accepted by the Ethereum core developers into the Ethash consensus.
