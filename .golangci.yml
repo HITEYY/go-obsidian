@@ -33,6 +33,9 @@ linters:
 
 issues:
   exclude-rules:
+    - path: crypto/bn256/
+      linters:
+        - revive
     - path: crypto/bn256/cloudflare/optate.go
       linters:
         - staticcheck
