@@ -199,6 +199,13 @@ var (
 	DurationLimit          = big.NewInt(13)     // The decision boundary on the blocktime duration used to determine whether difficulty should go up or not.
 )
 
+// Tendermint PoS parameters.
+var (
+	TendermintBlockPeriod = uint64(2)                       // Default block time for Tendermint PoS (2 seconds)
+	TendermintBlockReward = big.NewInt(2e+18)               // Block reward in wei for Tendermint PoS (2 OBS)
+	TendermintEpochLength = uint64(30000)                   // Default epoch length for Tendermint PoS
+)
+
 // System contracts.
 var (
 	// SystemAddress is where the system-transaction is sent from as per EIP-4788

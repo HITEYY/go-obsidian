@@ -269,6 +269,37 @@ var (
 		Clique:                  &CliqueConfig{Period: 0, Epoch: 30000},
 	}
 
+	// AllTendermintProtocolChanges contains every protocol change (EIPs) introduced
+	// and accepted by the Ethereum core developers into the Tendermint PoS consensus.
+	AllTendermintProtocolChanges = &ChainConfig{
+		ChainID:                 big.NewInt(1337),
+		HomesteadBlock:          big.NewInt(0),
+		DAOForkBlock:            nil,
+		DAOForkSupport:          false,
+		EIP150Block:             big.NewInt(0),
+		EIP155Block:             big.NewInt(0),
+		EIP158Block:             big.NewInt(0),
+		ByzantiumBlock:          big.NewInt(0),
+		ConstantinopleBlock:     big.NewInt(0),
+		PetersburgBlock:         big.NewInt(0),
+		IstanbulBlock:           big.NewInt(0),
+		MuirGlacierBlock:        big.NewInt(0),
+		BerlinBlock:             big.NewInt(0),
+		LondonBlock:             big.NewInt(0),
+		ArrowGlacierBlock:       nil,
+		GrayGlacierBlock:        nil,
+		MergeNetsplitBlock:      nil,
+		ShanghaiTime:            nil,
+		CancunTime:              nil,
+		PragueTime:              nil,
+		OsakaTime:               nil,
+		VerkleTime:              nil,
+		TerminalTotalDifficulty: big.NewInt(math.MaxInt64),
+		Ethash:                  nil,
+		Clique:                  nil,
+		Tendermint:              &TendermintConfig{Period: 2, Epoch: 30000, MinStake: big.NewInt(1000000000000000000)}, // 1 ETH minimum stake, 2 second blocks
+	}
+
 	// TestChainConfig contains every protocol change (EIPs) introduced
 	// and accepted by the Ethereum core developers for testing purposes.
 	TestChainConfig = &ChainConfig{
@@ -490,6 +521,7 @@ type ChainConfig struct {
 	// Various consensus engines
 	Ethash             *EthashConfig       `json:"ethash,omitempty"`
 	Clique             *CliqueConfig       `json:"clique,omitempty"`
+	Tendermint         *TendermintConfig   `json:"tendermint,omitempty"`
 	BlobScheduleConfig *BlobScheduleConfig `json:"blobSchedule,omitempty"`
 }
 
@@ -510,6 +542,18 @@ type CliqueConfig struct {
 // String implements the stringer interface, returning the consensus engine details.
 func (c CliqueConfig) String() string {
 	return fmt.Sprintf("clique(period: %d, epoch: %d)", c.Period, c.Epoch)
+}
+
+// TendermintConfig is the consensus engine configs for Tendermint PoS based sealing.
+type TendermintConfig struct {
+	Period   uint64   `json:"period"`   // Number of seconds between blocks to enforce (default: 2)
+	Epoch    uint64   `json:"epoch"`    // Epoch length to reset votes and checkpoint
+	MinStake *big.Int `json:"minStake"` // Minimum stake required to be a validator
+}
+
+// String implements the stringer interface, returning the consensus engine details.
+func (c TendermintConfig) String() string {
+	return fmt.Sprintf("tendermint(period: %d, epoch: %d, minStake: %v)", c.Period, c.Epoch, c.MinStake)
 }
 
 // String implements the fmt.Stringer interface, returning a string representation
@@ -613,6 +657,8 @@ func (c *ChainConfig) Description() string {
 	}
 	banner += fmt.Sprintf("Chain ID:  %v (%s)\n", c.ChainID, network)
 	switch {
+	case c.Tendermint != nil:
+		banner += fmt.Sprintf("Consensus: Tendermint PoS (block period: %d seconds)\n", c.Tendermint.Period)
 	case c.Ethash != nil:
 		banner += "Consensus: Beacon (proof-of-stake), merged from Ethash (proof-of-work)\n"
 	case c.Clique != nil:
