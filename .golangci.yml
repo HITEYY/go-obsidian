@@ -28,7 +28,6 @@ linters:
     - staticcheck
     - unconvert
     - unused
-    - usetesting
     - whitespace
 
 issues:

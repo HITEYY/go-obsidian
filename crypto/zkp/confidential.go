@@ -239,7 +239,6 @@ func ComputeBalanceBlindingFactor(inputs []*ConfidentialNote, outputs []*Confide
 // ScanForPayments scans a list of transactions for payments to a given viewing key
 func ScanForPayments(viewingKey *ecdsa.PrivateKey, spendingKey *ecdsa.PrivateKey, 
 	viewTags []byte, ephemeralPubs [][]byte, encryptedNotes [][]byte) ([]*ConfidentialNote, error) {
-	
 	notes := make([]*ConfidentialNote, 0)
 
 	for i := range viewTags {

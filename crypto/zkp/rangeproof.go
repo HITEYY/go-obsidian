@@ -243,12 +243,12 @@ func computePolynomialCoeffs(t0, t1, t2 *fr.Element, aL, aR, sL, sR []fr.Element
 	}
 
 	// Compute 2^n vector
-	twon := make([]fr.Element, n)
-	twon[0].SetOne()
+	twoN := make([]fr.Element, n)
+	twoN[0].SetOne()
 	var two fr.Element
 	two.SetUint64(2)
 	for i := 1; i < n; i++ {
-		twon[i].Mul(&twon[i-1], &two)
+		twoN[i].Mul(&twoN[i-1], &two)
 	}
 
 	// t0 = z^2 * <1, 2^n> + z * <1 - aL, y^n> - <aL, y^n ○ aR>

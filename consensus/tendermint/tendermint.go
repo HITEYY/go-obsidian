@@ -94,11 +94,9 @@ var (
 	errMissingSignature                = errors.New("extra-data 65 byte signature suffix missing")
 	errExtraValidators                 = errors.New("non-checkpoint block contains extra validator list")
 	errInvalidCheckpointValidators     = errors.New("invalid validator list on checkpoint block")
-	errMismatchingCheckpointValidators = errors.New("mismatching validator list on checkpoint block")
 	errInvalidMixDigest                = errors.New("non-zero mix digest")
 	errInvalidUncleHash                = errors.New("non empty uncle hash")
 	errInvalidDifficulty               = errors.New("invalid difficulty")
-	errWrongDifficulty                 = errors.New("wrong difficulty")
 	errInvalidTimestamp                = errors.New("invalid timestamp")
 	errInvalidVotingChain              = errors.New("invalid voting chain")
 	errUnauthorizedValidator           = errors.New("unauthorized validator")
@@ -124,8 +122,6 @@ type Tendermint struct {
 	signer common.Address // Obsidian address of this validator
 	signFn SignerFn       // Signing function
 	lock   sync.RWMutex   // Protects signer and proposals
-
-	fakeDiff bool // Skip difficulty verification (testing only)
 }
 
 // New creates a new Tendermint PoS consensus engine

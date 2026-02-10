@@ -1245,7 +1245,7 @@ func (c *ChainConfig) ActiveSystemContracts(time uint64) map[string]common.Addre
 	fork := c.LatestFork(time)
 	active := make(map[string]common.Address)
 	if fork >= forks.Osaka {
-		// no new system contracts
+		// active["new_contract"] = ...
 	}
 	if fork >= forks.Prague {
 		active["CONSOLIDATION_REQUEST_PREDEPLOY_ADDRESS"] = ConsolidationQueueAddress
