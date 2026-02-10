@@ -6,8 +6,8 @@
       "max": 6,
       "target": 3
     },
-    "chainId": "0x88bb0",
-    "forkId": "0xbef71d30",
+    "chainId": "0x6b7",
+    "forkId": "0xfb3f8f2f",
     "precompiles": {
       "BLAKE2F": "0x0000000000000000000000000000000000000009",
       "BN254_ADD": "0x0000000000000000000000000000000000000006",
@@ -25,14 +25,14 @@
     }
   },
   "next": {
-    "activationTime": 1742999832,
+    "activationTime": 0,
     "blobSchedule": {
       "baseFeeUpdateFraction": 5007716,
       "max": 9,
       "target": 6
     },
-    "chainId": "0x88bb0",
-    "forkId": "0x0929e24e",
+    "chainId": "0x6b7",
+    "forkId": "0xfb3f8f2f",
     "precompiles": {
       "BLAKE2F": "0x0000000000000000000000000000000000000009",
       "BLS12_G1ADD": "0x000000000000000000000000000000000000000b",
@@ -61,14 +61,14 @@
     }
   },
   "last": {
-    "activationTime": 1742999832,
+    "activationTime": 0,
     "blobSchedule": {
       "baseFeeUpdateFraction": 5007716,
       "max": 9,
       "target": 6
     },
-    "chainId": "0x88bb0",
-    "forkId": "0x0929e24e",
+    "chainId": "0x6b7",
+    "forkId": "0xfb3f8f2f",
     "precompiles": {
       "BLAKE2F": "0x0000000000000000000000000000000000000009",
       "BLS12_G1ADD": "0x000000000000000000000000000000000000000b",
