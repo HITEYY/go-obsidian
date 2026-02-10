@@ -1,4 +1,4 @@
-name: Go Test
+name: Go CI
 
 on:
   push:
@@ -7,46 +7,65 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-    name: Build Test
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.24.0'
-
-    - name: Build
-      run: go build -v ./...
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.x'
+          cache: false
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
 
   unit-tests:
-    name: General Unit Tests
-    needs: build
+    name: Unit Tests (Excluding ZK & Core)
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.24.0'
-
-    - name: Test
-      run: go test -v $(go list ./... | grep -v 'crypto/zkp')
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.x'
+      - name: Run Tests
+        run: go test -v $(go list ./... | grep -v 'crypto/zkp' | grep -v 'core')
 
   zk-tests:
     name: ZK Tests
-    needs: unit-tests
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.x'
+      - name: Run ZK Tests
+        run: go test -v ./crypto/zkp/...
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.24.0'
+  core-tests:
+    name: Core Package Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.x'
+      - name: Run Core Tests
+        run: go test -v ./core/...
 
-    - name: ZK Test
-      run: go test -v ./crypto/zkp/...
+  build:
+    name: Final Build
+    needs: [lint, unit-tests, zk-tests, core-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.x'
+      - name: Build
+        run: go build -v ./...
