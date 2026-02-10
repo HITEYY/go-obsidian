@@ -165,16 +165,26 @@ func (t *Tendermint) VerifyHeaders(chain consensus.ChainHeaderReader, headers []
 	abort := make(chan struct{})
 	results := make(chan error, len(headers))
 
-	go func() {
-		for i, header := range headers {
+	// Optimization: Verify headers in parallel
+	var wg sync.WaitGroup
+	for i, header := range headers {
+		wg.Add(1)
+		go func(i int, header *types.Header) {
+			defer wg.Done()
 			err := t.verifyHeader(chain, header, headers[:i])
 			select {
 			case <-abort:
 				return
 			case results <- err:
 			}
-		}
+		}(i, header)
+	}
+
+	go func() {
+		wg.Wait()
+		close(results)
 	}()
+
 	return abort, results
 }
 
@@ -411,11 +421,12 @@ func (t *Tendermint) Seal(chain consensus.ChainHeaderReader, block *types.Block,
 	}
 
 	// Check if we recently signed
+	// Slashing Relaxation: Use the relaxed limit (1/3 instead of 1/2)
 	for seen, recent := range snap.Recents {
 		if recent == signer {
-			limit := uint64(len(snap.Validators)/2 + 1)
+			limit := uint64(len(snap.Validators)/3 + 1)
 			if number < limit || seen > number-limit {
-				log.Info("Signed recently, must wait for others")
+				log.Info("Signed recently, must wait for others (relaxed limit)")
 				return nil
 			}
 		}
@@ -425,7 +436,8 @@ func (t *Tendermint) Seal(chain consensus.ChainHeaderReader, block *types.Block,
 	delay := time.Unix(int64(header.Time), 0).Sub(time.Now())
 	if header.Difficulty.Cmp(diffNoTurn) == 0 {
 		// Out-of-turn validators wait a bit
-		wiggle := time.Duration(len(snap.Validators)/2+1) * time.Duration(t.config.Period) * time.Second / 2
+		// Slashing Relaxation: Reduce out-of-turn wiggle room to improve block production stability
+		wiggle := time.Duration(len(snap.Validators)/3+1) * time.Duration(t.config.Period) * time.Second / 2
 		delay += wiggle
 
 		log.Trace("Out-of-turn signing requested", "wiggle", common.PrettyDuration(wiggle))

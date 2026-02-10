@@ -212,7 +212,10 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 		number := header.Number.Uint64()
 
 		// Delete the oldest validator from the recent list to allow it signing again
-		if limit := uint64(len(snap.Validators)/2 + 1); number >= limit {
+		// Slashing Relaxation: Increase the recent signing limit to allow more frequent rotations
+		// Original: limit := uint64(len(snap.Validators)/2 + 1)
+		// Relaxed: limit := uint64(len(snap.Validators)/3 + 1)
+		if limit := uint64(len(snap.Validators)/3 + 1); number >= limit {
 			delete(snap.Recents, number-limit)
 		}
 
