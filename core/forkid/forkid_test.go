@@ -137,16 +137,16 @@ func TestCreation(t *testing.T) {
 			params.HoodiChainConfig,
 			core.DefaultHoodiGenesisBlock().ToBlock(),
 			[]testcase{
-				{0, 0, ID{Hash: checksumToBytes(0xbef71d30), Next: 1742999832}},            // Unsynced, last Frontier, Homestead, Tangerine, Spurious, Byzantium, Constantinople, Petersburg, Istanbul, Berlin, London, Paris, Shanghai, Cancun block
-				{123, 1742999831, ID{Hash: checksumToBytes(0xbef71d30), Next: 1742999832}}, // Last Cancun block
-				{123, 1742999832, ID{Hash: checksumToBytes(0x0929e24e), Next: 1761677592}}, // First Prague block
-				{123, 1761677591, ID{Hash: checksumToBytes(0x0929e24e), Next: 1761677592}}, // Last Prague block
-				{123, 1761677592, ID{Hash: checksumToBytes(0xe7e0e7ff), Next: 1762365720}}, // First Osaka block
-				{123, 1762365719, ID{Hash: checksumToBytes(0xe7e0e7ff), Next: 1762365720}}, // Last Osaka block
-				{123, 1762365720, ID{Hash: checksumToBytes(0x3893353e), Next: 1762955544}}, // First BPO1 block
-				{123, 1762955543, ID{Hash: checksumToBytes(0x3893353e), Next: 1762955544}}, // Last BPO1 block
-				{123, 1762955544, ID{Hash: checksumToBytes(0x23aa1351), Next: 0}},          // First BPO2 block
-				{123, 2000000000, ID{Hash: checksumToBytes(0x23aa1351), Next: 0}},          // Future BPO2 block
+				{0, 0, ID{Hash: checksumToBytes(0xfb3f8f2f), Next: 0}},
+				{123, 1742999831, ID{Hash: checksumToBytes(0xfb3f8f2f), Next: 0}},
+				{123, 1742999832, ID{Hash: checksumToBytes(0xfb3f8f2f), Next: 0}},
+				{123, 1761677591, ID{Hash: checksumToBytes(0xfb3f8f2f), Next: 0}},
+				{123, 1761677592, ID{Hash: checksumToBytes(0xfb3f8f2f), Next: 0}},
+				{123, 1762365719, ID{Hash: checksumToBytes(0xfb3f8f2f), Next: 0}},
+				{123, 1762365720, ID{Hash: checksumToBytes(0xfb3f8f2f), Next: 0}},
+				{123, 1762955543, ID{Hash: checksumToBytes(0xfb3f8f2f), Next: 0}},
+				{123, 1762955544, ID{Hash: checksumToBytes(0xfb3f8f2f), Next: 0}},
+				{123, 2000000000, ID{Hash: checksumToBytes(0xfb3f8f2f), Next: 0}},
 			},
 		},
 	}

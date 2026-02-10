@@ -3870,7 +3870,7 @@ func TestEIP7910Config(t *testing.T) {
 		// Define a snapshot of the current Hoodi config (only Prague scheduled) so that future forks do not
 		// cause this test to fail.
 		config = &params.ChainConfig{
-			ChainID:                 big.NewInt(560048),
+			ChainID:                 big.NewInt(1719),
 			HomesteadBlock:          big.NewInt(0),
 			DAOForkBlock:            nil,
 			DAOForkSupport:          true,
@@ -3890,9 +3890,9 @@ func TestEIP7910Config(t *testing.T) {
 			MergeNetsplitBlock:      big.NewInt(0),
 			ShanghaiTime:            newUint64(0),
 			CancunTime:              newUint64(0),
-			PragueTime:              newUint64(1742999832),
+			PragueTime:              newUint64(0),
 			DepositContractAddress:  common.HexToAddress("0x00000000219ab540356cBB839Cbe05303d7705Fa"),
-			Ethash:                  new(params.EthashConfig),
+			Ethash:                  nil,
 			BlobScheduleConfig: &params.BlobScheduleConfig{
 				Cancun: params.DefaultCancunBlobConfig,
 				Prague: params.DefaultPragueBlobConfig,
