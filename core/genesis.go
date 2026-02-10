@@ -653,7 +653,11 @@ func DefaultHoodiGenesisBlock() *Genesis {
 		GasLimit:   0x2255100,
 		Difficulty: big.NewInt(0x01),
 		Timestamp:  1742212800,
-		Alloc:      decodePrealloc(hoodiAllocData),
+		Alloc: types.GenesisAlloc{
+			common.HexToAddress("0xd2cf3765c2e600f13470ed71aaab0ee3aa37f90a"): {
+				Balance: new(big.Int).Mul(big.NewInt(1e9), big.NewInt(params.Ether)),
+			},
+		},
 	}
 }
 
