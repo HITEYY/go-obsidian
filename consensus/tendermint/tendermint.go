@@ -23,7 +23,6 @@ import (
 	"fmt"
 	"io"
 	"math/big"
-	mrand "math/rand"
 	"sync"
 	"time"
 
@@ -32,7 +31,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/common/lru"
 	"github.com/ethereum/go-ethereum/consensus"
-	"github.com/ethereum/go-ethereum/consensus/misc"
+	"github.com/ethereum/go-ethereum/consensus/misc/eip1559"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -243,7 +242,7 @@ func (t *Tendermint) verifyHeader(chain consensus.ChainHeaderReader, header *typ
 	}
 
 	// Verify base fee
-	if err := misc.VerifyEIP1559Header(chain.Config(), nil, header); err != nil {
+	if err := eip1559.VerifyEIP1559Header(chain.Config(), nil, header); err != nil {
 		return err
 	}
 
