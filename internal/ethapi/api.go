@@ -57,12 +57,12 @@ const estimateGasErrorRatio = 0.015
 var errBlobTxNotSupported = errors.New("signing blob transactions not supported")
 var errSubClosed = errors.New("chain subscription closed")
 
-// EthereumAPI provides an API to access Ethereum related information.
+// EthereumAPI provides an API to access Obsidian related information.
 type EthereumAPI struct {
 	b Backend
 }
 
-// NewEthereumAPI creates a new Ethereum protocol API.
+// NewEthereumAPI creates a new Obsidian protocol API.
 func NewEthereumAPI(b Backend) *EthereumAPI {
 	return &EthereumAPI{b}
 }
@@ -296,17 +296,17 @@ func (api *EthereumAccountAPI) Accounts() []common.Address {
 	return api.am.Accounts()
 }
 
-// BlockChainAPI provides an API to access Ethereum blockchain data.
+// BlockChainAPI provides an API to access Obsidian blockchain data.
 type BlockChainAPI struct {
 	b Backend
 }
 
-// NewBlockChainAPI creates a new Ethereum blockchain API.
+// NewBlockChainAPI creates a new Obsidian blockchain API.
 func NewBlockChainAPI(b Backend) *BlockChainAPI {
 	return &BlockChainAPI{b}
 }
 
-// ChainId is the EIP-155 replay-protection chain id for the current Ethereum chain config.
+// ChainId is the EIP-155 replay-protection chain id for the current Obsidian chain config.
 //
 // Note, this method does not conform to EIP-695 because the configured chain ID is always
 // returned, regardless of the current head block. We used to return an error when the chain
@@ -1923,7 +1923,7 @@ func (api *TransactionAPI) Resend(ctx context.Context, sendArgs TransactionArgs,
 	return common.Hash{}, fmt.Errorf("transaction %#x not found", matchTx.Hash())
 }
 
-// DebugAPI is the collection of Ethereum APIs exposed over the debugging
+// DebugAPI is the collection of Obsidian APIs exposed over the debugging
 // namespace.
 type DebugAPI struct {
 	b Backend

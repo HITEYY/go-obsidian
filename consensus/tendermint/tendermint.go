@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-obsidian library. If not, see <http://www.gnu.org/licenses/>.
 
-// Package tendermint implements the Tendermint-based Proof of Stake consensus engine.
+// Package tendermint implements the Tendermint PoS consensus engine.
 package tendermint
 
 import (
@@ -27,11 +27,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/common/lru"
 	"github.com/ethereum/go-ethereum/consensus"
-	"github.com/ethereum/go-ethereum/consensus/misc/eip1559"
+	"github.com/ethereum/go-ethereum/consensus/misc"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -40,30 +41,28 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/ethereum/go-ethereum/trie"
 	"golang.org/x/crypto/sha3"
 )
 
 const (
-	// DefaultBlockTime is the default block time in seconds (2 seconds)
-	DefaultBlockTime = 2
-
 	// checkpointInterval is the number of blocks after which to save the validator snapshot
 	checkpointInterval = 1024
 
-	// inmemorySnapshots is the number of recent vote snapshots to keep in memory
+	// inmemorySnapshots is the number of recent snapshots to keep in memory
 	inmemorySnapshots = 128
 
 	// inmemorySignatures is the number of recent block signatures to keep in memory
 	inmemorySignatures = 4096
-)
 
-// sigLRU is the type alias for signature cache
-type sigLRU = lru.Cache[common.Hash, common.Address]
+	// DefaultBlockPeriod is the default block time (2 seconds for Tendermint PoS)
+	DefaultBlockPeriod = 2
+)
 
 // Tendermint PoS protocol constants
 var (
-	// epochLength is the default number of blocks after which to checkpoint and reset the pending votes
+	// epochLength is the default number of blocks after which to checkpoint
 	epochLength = uint64(30000)
 
 	// extraVanity is the fixed number of extra-data prefix bytes reserved for validator vanity
@@ -71,12 +70,6 @@ var (
 
 	// extraSeal is the fixed number of extra-data suffix bytes reserved for validator seal
 	extraSeal = crypto.SignatureLength
-
-	// nonceAuthVote is the magic nonce number to vote on adding a new validator
-	nonceAuthVote = hexutil.MustDecode("0xffffffffffffffff")
-
-	// nonceDropVote is the magic nonce number to vote on removing a validator
-	nonceDropVote = hexutil.MustDecode("0x0000000000000000")
 
 	// uncleHash is always Keccak256(RLP([])) as uncles are meaningless in PoS
 	uncleHash = types.CalcUncleHash(nil)
@@ -86,121 +79,66 @@ var (
 
 	// diffNoTurn is the block difficulty for out-of-turn validators
 	diffNoTurn = big.NewInt(1)
+
+	// Magic nonce for validator votes
+	nonceAuthVote = hexutil.MustDecode("0xffffffffffffffff")
+	nonceDropVote = hexutil.MustDecode("0x0000000000000000")
 )
 
-// Various error messages to mark blocks invalid
+// Various error messages
 var (
-	// errUnknownBlock is returned when the list of validators is requested for a block
-	// that is not part of the local blockchain.
-	errUnknownBlock = errors.New("unknown block")
-
-	// errInvalidCheckpointBeneficiary is returned if a checkpoint/epoch transition
-	// block has a beneficiary set to non-zeroes.
-	errInvalidCheckpointBeneficiary = errors.New("beneficiary in checkpoint block non-zero")
-
-	// errInvalidVote is returned if a nonce value is something else that the two
-	// allowed constants of 0x00..0 or 0xff..f.
-	errInvalidVote = errors.New("vote nonce not 0x00..0 or 0xff..f")
-
-	// errInvalidCheckpointVote is returned if a checkpoint/epoch transition block
-	// has a vote nonce set to non-zeroes.
-	errInvalidCheckpointVote = errors.New("vote nonce in checkpoint block non-zero")
-
-	// errMissingVanity is returned if a block's extra-data section is shorter than
-	// 32 bytes, which is required to store the validator vanity.
-	errMissingVanity = errors.New("extra-data 32 byte vanity prefix missing")
-
-	// errMissingSignature is returned if a block's extra-data section doesn't seem
-	// to contain a 65 byte secp256k1 signature.
-	errMissingSignature = errors.New("extra-data 65 byte signature suffix missing")
-
-	// errExtraValidators is returned if non-checkpoint block contain validator data in
-	// their extra-data fields.
-	errExtraValidators = errors.New("non-checkpoint block contains extra validator list")
-
-	// errInvalidCheckpointValidators is returned if a checkpoint block contains an
-	// invalid list of validators (i.e. non divisible by 20 bytes).
-	errInvalidCheckpointValidators = errors.New("invalid validator list on checkpoint block")
-
-	// errMismatchingCheckpointValidators is returned if a checkpoint block contains a
-	// list of validators different than the one the local node calculated.
+	errUnknownBlock                    = errors.New("unknown block")
+	errInvalidCheckpointBeneficiary    = errors.New("beneficiary in checkpoint block non-zero")
+	errInvalidVote                     = errors.New("vote nonce not 0x00..0 or 0xff..f")
+	errInvalidCheckpointVote           = errors.New("vote nonce in checkpoint block non-zero")
+	errMissingVanity                   = errors.New("extra-data 32 byte vanity prefix missing")
+	errMissingSignature                = errors.New("extra-data 65 byte signature suffix missing")
+	errExtraValidators                 = errors.New("non-checkpoint block contains extra validator list")
+	errInvalidCheckpointValidators     = errors.New("invalid validator list on checkpoint block")
 	errMismatchingCheckpointValidators = errors.New("mismatching validator list on checkpoint block")
-
-	// errInvalidMixDigest is returned if a block's mix digest is non-zero.
-	errInvalidMixDigest = errors.New("non-zero mix digest")
-
-	// errInvalidUncleHash is returned if a block contains an non-empty uncle list.
-	errInvalidUncleHash = errors.New("non empty uncle hash")
-
-	// errInvalidDifficulty is returned if the difficulty of a block neither 1 or 2.
-	errInvalidDifficulty = errors.New("invalid difficulty")
-
-	// errWrongDifficulty is returned if the difficulty of a block doesn't match the
-	// turn of the validator.
-	errWrongDifficulty = errors.New("wrong difficulty")
-
-	// errInvalidTimestamp is returned if the timestamp of a block is lower than
-	// the previous block's timestamp + the minimum block period.
-	errInvalidTimestamp = errors.New("invalid timestamp")
-
-	// errInvalidVotingChain is returned if an authorization list is attempted to
-	// be modified via out-of-range or non-contiguous headers.
-	errInvalidVotingChain = errors.New("invalid voting chain")
-
-	// errUnauthorizedValidator is returned if a header is signed by a non-authorized entity.
-	errUnauthorizedValidator = errors.New("unauthorized validator")
-
-	// errRecentlySigned is returned if a header is signed by an authorized entity
-	// that already signed a header recently, thus is temporarily not allowed to.
-	errRecentlySigned = errors.New("recently signed")
-
-	// errInsufficientStake is returned if a validator doesn't have sufficient stake
-	errInsufficientStake = errors.New("insufficient stake for validation")
+	errInvalidMixDigest                = errors.New("non-zero mix digest")
+	errInvalidUncleHash                = errors.New("non empty uncle hash")
+	errInvalidDifficulty               = errors.New("invalid difficulty")
+	errWrongDifficulty                 = errors.New("wrong difficulty")
+	errInvalidTimestamp                = errors.New("invalid timestamp")
+	errInvalidVotingChain              = errors.New("invalid voting chain")
+	errUnauthorizedValidator           = errors.New("unauthorized validator")
+	errRecentlySigned                  = errors.New("recently signed")
 )
 
-// SignerFn hashes and signs the data to be signed by a backing account.
-type SignerFn func(account common.Address, mimeType string, data []byte) ([]byte, error)
+// sigLRU is a type alias for the signature LRU cache
+type sigLRU = lru.Cache[common.Hash, common.Address]
 
-// Validator represents a PoS validator with stake information
-type Validator struct {
-	Address common.Address
-	Stake   *big.Int
-}
+// SignerFn is a callback for signing
+type SignerFn func(accounts.Account, string, []byte) ([]byte, error)
 
-// Tendermint is the Tendermint-based PoS consensus engine.
+// Tendermint is the Tendermint PoS consensus engine
 type Tendermint struct {
-	config *params.TendermintConfig // Consensus engine configuration parameters
-	db     ethdb.Database           // Database to store and retrieve snapshot checkpoints
+	config *params.TendermintConfig // Consensus engine configuration
+	db     ethdb.Database           // Database for snapshot checkpoints
 
-	recents    *lru.Cache[common.Hash, *Snapshot] // Snapshots for recent block to speed up reorgs
-	signatures *sigLRU                            // Signatures of recent blocks to speed up mining
+	recents    *lru.Cache[common.Hash, *Snapshot] // Recent snapshots for reorg speed
+	signatures *sigLRU                            // Recent block signatures
 
-	proposals map[common.Address]bool // Current list of proposals we are pushing
+	proposals map[common.Address]bool // Current validator proposals
 
-	signer common.Address // Ethereum address of the signing key
-	signFn SignerFn       // Signer function to authorize hashes with
-	lock   sync.RWMutex   // Protects the signer and proposals fields
+	signer common.Address // Obsidian address of this validator
+	signFn SignerFn       // Signing function
+	lock   sync.RWMutex   // Protects signer and proposals
 
-	// The fields below are for testing only
-	fakeDiff bool // Skip difficulty verifications
+	fakeDiff bool // Skip difficulty verification (testing only)
 }
 
-// New creates a Tendermint PoS consensus engine with the initial validators set
-// from the genesis block's extra-data.
+// New creates a new Tendermint PoS consensus engine
 func New(config *params.TendermintConfig, db ethdb.Database) *Tendermint {
-	// Set any missing consensus parameters to their defaults
 	conf := *config
 	if conf.Epoch == 0 {
 		conf.Epoch = epochLength
 	}
 	if conf.Period == 0 {
-		conf.Period = DefaultBlockTime
-	}
-	if conf.MinStake == nil {
-		conf.MinStake = big.NewInt(1000000000000000000) // 1 ETH default
+		conf.Period = DefaultBlockPeriod
 	}
 
-	// Allocate the snapshot caches and create the engine
 	recents := lru.NewCache[common.Hash, *Snapshot](inmemorySnapshots)
 	signatures := lru.NewCache[common.Hash, common.Address](inmemorySignatures)
 
@@ -213,20 +151,17 @@ func New(config *params.TendermintConfig, db ethdb.Database) *Tendermint {
 	}
 }
 
-// Author implements consensus.Engine, returning the Ethereum address recovered
-// from the signature in the header's extra-data section.
+// Author returns the Obsidian address of the block validator
 func (t *Tendermint) Author(header *types.Header) (common.Address, error) {
 	return ecrecover(header, t.signatures)
 }
 
-// VerifyHeader checks whether a header conforms to the consensus rules.
+// VerifyHeader checks whether a header conforms to consensus rules
 func (t *Tendermint) VerifyHeader(chain consensus.ChainHeaderReader, header *types.Header) error {
 	return t.verifyHeader(chain, header, nil)
 }
 
-// VerifyHeaders is similar to VerifyHeader, but verifies a batch of headers
-// concurrently. The method returns a quit channel to abort the operations and
-// a results channel to retrieve the async verifications.
+// VerifyHeaders verifies a batch of headers concurrently
 func (t *Tendermint) VerifyHeaders(chain consensus.ChainHeaderReader, headers []*types.Header) (chan<- struct{}, <-chan error) {
 	abort := make(chan struct{})
 	results := make(chan error, len(headers))
@@ -234,7 +169,6 @@ func (t *Tendermint) VerifyHeaders(chain consensus.ChainHeaderReader, headers []
 	go func() {
 		for i, header := range headers {
 			err := t.verifyHeader(chain, header, headers[:i])
-
 			select {
 			case <-abort:
 				return
@@ -245,25 +179,25 @@ func (t *Tendermint) VerifyHeaders(chain consensus.ChainHeaderReader, headers []
 	return abort, results
 }
 
-// verifyHeader checks whether a header conforms to the consensus rules.
+// verifyHeader checks whether a header conforms to consensus rules
 func (t *Tendermint) verifyHeader(chain consensus.ChainHeaderReader, header *types.Header, parents []*types.Header) error {
 	if header.Number == nil {
 		return errUnknownBlock
 	}
 	number := header.Number.Uint64()
 
-	// Don't waste time checking blocks from the future
+	// Don't verify future blocks
 	if header.Time > uint64(time.Now().Unix()) {
 		return consensus.ErrFutureBlock
 	}
 
-	// Checkpoint blocks need to enforce zero beneficiary
+	// Check checkpoint rules
 	checkpoint := (number % t.config.Epoch) == 0
 	if checkpoint && header.Coinbase != (common.Address{}) {
 		return errInvalidCheckpointBeneficiary
 	}
 
-	// Nonces must be 0x00..0 or 0xff..f, zeroes enforced on checkpoints
+	// Check nonce
 	if !bytes.Equal(header.Nonce[:], nonceAuthVote) && !bytes.Equal(header.Nonce[:], nonceDropVote) {
 		return errInvalidVote
 	}
@@ -271,15 +205,13 @@ func (t *Tendermint) verifyHeader(chain consensus.ChainHeaderReader, header *typ
 		return errInvalidCheckpointVote
 	}
 
-	// Check that the extra-data contains both the vanity and signature
+	// Check extra-data
 	if len(header.Extra) < extraVanity {
 		return errMissingVanity
 	}
 	if len(header.Extra) < extraVanity+extraSeal {
 		return errMissingSignature
 	}
-
-	// Ensure that the extra-data contains a validator list on checkpoint, but none otherwise
 	validatorsBytes := len(header.Extra) - extraVanity - extraSeal
 	if !checkpoint && validatorsBytes != 0 {
 		return errExtraValidators
@@ -288,41 +220,45 @@ func (t *Tendermint) verifyHeader(chain consensus.ChainHeaderReader, header *typ
 		return errInvalidCheckpointValidators
 	}
 
-	// Ensure that the mix digest is zero as we don't have fork protection currently
+	// Check MixDigest
 	if header.MixDigest != (common.Hash{}) {
 		return errInvalidMixDigest
 	}
 
-	// Ensure that the block doesn't contain any uncles
+	// Check UncleHash
 	if header.UncleHash != uncleHash {
 		return errInvalidUncleHash
 	}
 
-	// Ensure that the block's difficulty is meaningful (may not be correct at this point)
+	// Check difficulty
 	if number > 0 {
 		if header.Difficulty == nil || (header.Difficulty.Cmp(diffInTurn) != 0 && header.Difficulty.Cmp(diffNoTurn) != 0) {
 			return errInvalidDifficulty
 		}
 	}
 
-	// Verify that the gas limit is <= 2^63-1
+	// Verify gas limit
 	if header.GasLimit > params.MaxGasLimit {
 		return fmt.Errorf("invalid gasLimit: have %v, max %v", header.GasLimit, params.MaxGasLimit)
+	}
+
+	// Verify base fee
+	if err := misc.VerifyEIP1559Header(chain.Config(), nil, header); err != nil {
+		return err
 	}
 
 	// All basic checks passed, verify cascading fields
 	return t.verifyCascadingFields(chain, header, parents)
 }
 
-// verifyCascadingFields verifies all the header fields that are not standalone
+// verifyCascadingFields verifies header fields that depend on previous headers
 func (t *Tendermint) verifyCascadingFields(chain consensus.ChainHeaderReader, header *types.Header, parents []*types.Header) error {
-	// The genesis block is the always valid dead-end
 	number := header.Number.Uint64()
 	if number == 0 {
 		return nil
 	}
 
-	// Ensure that the block's timestamp isn't too close to its parent
+	// Get parent header
 	var parent *types.Header
 	if len(parents) > 0 {
 		parent = parents[len(parents)-1]
@@ -332,223 +268,76 @@ func (t *Tendermint) verifyCascadingFields(chain consensus.ChainHeaderReader, he
 	if parent == nil || parent.Number.Uint64() != number-1 || parent.Hash() != header.ParentHash {
 		return consensus.ErrUnknownAncestor
 	}
+
+	// Check timestamp (must be at least period seconds after parent)
 	if parent.Time+t.config.Period > header.Time {
 		return errInvalidTimestamp
 	}
 
-	// Verify that the gasUsed is <= gasLimit
+	// Verify gasUsed <= gasLimit
 	if header.GasUsed > header.GasLimit {
 		return fmt.Errorf("invalid gasUsed: have %d, gasLimit %d", header.GasUsed, header.GasLimit)
 	}
 
-	// Verify the base fee if enabled
-	if chain.Config().IsLondon(header.Number) {
-		if err := eip1559.VerifyEIP1559Header(chain.Config(), parent, header); err != nil {
-			return err
-		}
-	}
-
-	// Retrieve the snapshot needed to verify this header and cache it
-	snap, err := t.snapshot(chain, number-1, header.ParentHash, parents)
-	if err != nil {
-		return err
-	}
-
-	// If the block is a checkpoint block, verify the validator list
-	if number%t.config.Epoch == 0 {
-		validators := snap.validators()
-		extraValidators := make([]byte, len(validators)*common.AddressLength)
-		for i, validator := range validators {
-			copy(extraValidators[i*common.AddressLength:], validator[:])
-		}
-		if !bytes.Equal(header.Extra[extraVanity:len(header.Extra)-extraSeal], extraValidators) {
-			return errMismatchingCheckpointValidators
-		}
-	}
-
-	// All basic checks passed, verify the seal and return
-	return t.verifySeal(snap, header, parents)
+	return nil
 }
 
-// snapshot retrieves the authorization snapshot at a given point in time
-func (t *Tendermint) snapshot(chain consensus.ChainHeaderReader, number uint64, hash common.Hash, parents []*types.Header) (*Snapshot, error) {
-	// Search for a snapshot in memory or on disk for checkpoints
-	var (
-		headers []*types.Header
-		snap    *Snapshot
-	)
-	for snap == nil {
-		// If an in-memory snapshot was found, use that
-		if s, ok := t.recents.Get(hash); ok {
-			snap = s
-			break
-		}
-
-		// If an on-disk checkpoint snapshot can be found, use that
-		if number%checkpointInterval == 0 {
-			if s, err := loadSnapshot(t.config, t.signatures, t.db, hash); err == nil {
-				log.Trace("Loaded voting snapshot from disk", "number", number, "hash", hash)
-				snap = s
-				break
-			}
-		}
-
-		// If we're at the genesis, snapshot the initial state.
-		if number == 0 {
-			checkpoint := chain.GetHeaderByNumber(0)
-			if checkpoint != nil {
-				hash := checkpoint.Hash()
-
-				validators := make([]common.Address, (len(checkpoint.Extra)-extraVanity-extraSeal)/common.AddressLength)
-				for i := 0; i < len(validators); i++ {
-					copy(validators[i][:], checkpoint.Extra[extraVanity+i*common.AddressLength:])
-				}
-				snap = newSnapshot(t.config, t.signatures, 0, hash, validators)
-				if err := snap.store(t.db); err != nil {
-					return nil, err
-				}
-				log.Info("Stored checkpoint snapshot to disk", "number", 0, "hash", hash)
-				break
-			}
-		}
-
-		// No snapshot for this header, gather the header and move backward
-		var header *types.Header
-		if len(parents) > 0 {
-			// If we have explicit parents, pick from there (enforced)
-			header = parents[len(parents)-1]
-			if header.Hash() != hash || header.Number.Uint64() != number {
-				return nil, consensus.ErrUnknownAncestor
-			}
-			parents = parents[:len(parents)-1]
-		} else {
-			// No explicit parents (or no more left), reach out to the database
-			header = chain.GetHeader(hash, number)
-			if header == nil {
-				return nil, consensus.ErrUnknownAncestor
-			}
-		}
-		headers = append(headers, header)
-		number, hash = number-1, header.ParentHash
-	}
-
-	// Previous snapshot found, apply any pending headers on top of it
-	for i := 0; i < len(headers)/2; i++ {
-		headers[i], headers[len(headers)-1-i] = headers[len(headers)-1-i], headers[i]
-	}
-	snap, err := snap.apply(headers)
-	if err != nil {
-		return nil, err
-	}
-	t.recents.Add(snap.Hash, snap)
-
-	// If we've generated a new checkpoint snapshot, save to disk
-	if snap.Number%checkpointInterval == 0 && len(headers) > 0 {
-		if err = snap.store(t.db); err != nil {
-			return nil, err
-		}
-		log.Trace("Stored voting snapshot to disk", "number", snap.Number, "hash", snap.Hash)
-	}
-	return snap, err
-}
-
-// VerifyUncles implements consensus.Engine, always returning an error for any
-// uncles as this consensus mechanism doesn't permit uncles.
+// VerifyUncles verifies that the given block has no uncles (PoS has no uncles)
 func (t *Tendermint) VerifyUncles(chain consensus.ChainReader, block *types.Block) error {
 	if len(block.Uncles()) > 0 {
-		return errors.New("uncles not allowed")
+		return errors.New("uncles not allowed in Tendermint PoS")
 	}
 	return nil
 }
 
-// verifySeal checks whether the signature contained in the header satisfies the
-// consensus protocol requirements.
-func (t *Tendermint) verifySeal(snap *Snapshot, header *types.Header, parents []*types.Header) error {
-	// Verifying the genesis block is not supported
-	number := header.Number.Uint64()
-	if number == 0 {
-		return errUnknownBlock
-	}
-
-	// Resolve the authorization key and check against validators
-	signer, err := ecrecover(header, t.signatures)
-	if err != nil {
-		return err
-	}
-	if _, ok := snap.Validators[signer]; !ok {
-		return errUnauthorizedValidator
-	}
-
-	// Check that the validator has sufficient stake
-	if snap.Stakes[signer] == nil || snap.Stakes[signer].Cmp(t.config.MinStake) < 0 {
-		return errInsufficientStake
-	}
-
-	for seen, recent := range snap.Recents {
-		if recent == signer {
-			// Validator is among recents, only wait if current block doesn't shift it out
-			if limit := uint64(len(snap.Validators)/2 + 1); seen > number-limit {
-				return errRecentlySigned
-			}
-		}
-	}
-
-	// Ensure that the difficulty corresponds to the turn-ness of the signer
-	if !t.fakeDiff {
-		inturn := snap.inturn(header.Number.Uint64(), signer)
-		if inturn && header.Difficulty.Cmp(diffInTurn) != 0 {
-			return errWrongDifficulty
-		}
-		if !inturn && header.Difficulty.Cmp(diffNoTurn) != 0 {
-			return errWrongDifficulty
-		}
-	}
-	return nil
-}
-
-// Prepare implements consensus.Engine, preparing all the consensus fields of the
-// header for running the transactions on top.
+// Prepare initializes the consensus fields of a block header
 func (t *Tendermint) Prepare(chain consensus.ChainHeaderReader, header *types.Header) error {
-	// If the block isn't a checkpoint, cast a random vote (good enough for now)
 	header.Coinbase = common.Address{}
 	header.Nonce = types.BlockNonce{}
 
 	number := header.Number.Uint64()
 
-	// Assemble the voting snapshot to check which votes make sense
+	// Get validator snapshot
 	snap, err := t.snapshot(chain, number-1, header.ParentHash, nil)
 	if err != nil {
 		return err
 	}
-	t.lock.RLock()
 
-	// Gather all the proposals that make sense voting on
-	addresses := make([]common.Address, 0, len(t.proposals))
-	for address, authorize := range t.proposals {
-		if snap.validVote(address, authorize) {
-			addresses = append(addresses, address)
+	// Set coinbase for non-checkpoint blocks
+	t.lock.RLock()
+	if number%t.config.Epoch != 0 {
+		// Gather all the proposals that make sense voting on
+		addresses := make([]common.Address, 0, len(t.proposals))
+		for address, authorize := range t.proposals {
+			if snap.validVote(address, authorize) {
+				addresses = append(addresses, address)
+			}
+		}
+		// If there's pending proposals, cast a vote on them
+		if len(addresses) > 0 {
+			header.Coinbase = addresses[0]
+			if t.proposals[header.Coinbase] {
+				copy(header.Nonce[:], nonceAuthVote)
+			} else {
+				copy(header.Nonce[:], nonceDropVote)
+			}
 		}
 	}
-	// If there's pending proposals, cast a vote on them
-	if len(addresses) > 0 {
-		header.Coinbase = addresses[mrand.Intn(len(addresses))]
-		if t.proposals[header.Coinbase] {
-			copy(header.Nonce[:], nonceAuthVote)
-		} else {
-			copy(header.Nonce[:], nonceDropVote)
-		}
-	}
+
+	// Copy signer protected by mutex
+	signer := t.signer
 	t.lock.RUnlock()
 
-	// Set the correct difficulty
-	header.Difficulty = calcDifficulty(snap, t.signer)
+	// Set difficulty
+	header.Difficulty = calcDifficulty(snap, signer)
 
-	// Ensure the extra data has all its components
+	// Set extra data
 	if len(header.Extra) < extraVanity {
 		header.Extra = append(header.Extra, bytes.Repeat([]byte{0x00}, extraVanity-len(header.Extra))...)
 	}
 	header.Extra = header.Extra[:extraVanity]
 
+	// Add validators on checkpoint
 	if number%t.config.Epoch == 0 {
 		for _, validator := range snap.validators() {
 			header.Extra = append(header.Extra, validator[:]...)
@@ -556,10 +345,10 @@ func (t *Tendermint) Prepare(chain consensus.ChainHeaderReader, header *types.He
 	}
 	header.Extra = append(header.Extra, make([]byte, extraSeal)...)
 
-	// Mix digest is reserved for now, set to empty
+	// Set mix digest
 	header.MixDigest = common.Hash{}
 
-	// Ensure the timestamp has the correct delay
+	// Ensure timestamp has correct delay
 	parent := chain.GetHeader(header.ParentHash, number-1)
 	if parent == nil {
 		return consensus.ErrUnknownAncestor
@@ -568,55 +357,52 @@ func (t *Tendermint) Prepare(chain consensus.ChainHeaderReader, header *types.He
 	if header.Time < uint64(time.Now().Unix()) {
 		header.Time = uint64(time.Now().Unix())
 	}
+
 	return nil
 }
 
-// Finalize implements consensus.Engine, ensuring no uncles are set
+// Finalize runs post-transaction state modifications.
+// Tendermint PoS has no block rewards at the execution layer.
 func (t *Tendermint) Finalize(chain consensus.ChainHeaderReader, header *types.Header, statedb vm.StateDB, body *types.Body) {
-	// No block rewards in Tendermint PoS
-	// Just set uncle hash since PoS doesn't have uncles
-	header.UncleHash = types.CalcUncleHash(nil)
+	// No block rewards in Tendermint PoS at the execution layer
+	// Rewards are handled at the consensus layer
 }
 
-// FinalizeAndAssemble implements consensus.Engine, ensuring no uncles are set,
-// assembling the final block.
+// FinalizeAndAssemble runs post-transaction modifications and assembles the block
 func (t *Tendermint) FinalizeAndAssemble(chain consensus.ChainHeaderReader, header *types.Header, statedb *state.StateDB, body *types.Body, receipts []*types.Receipt) (*types.Block, error) {
+	if len(body.Withdrawals) > 0 {
+		return nil, errors.New("tendermint does not support withdrawals")
+	}
+
 	// Finalize block
 	t.Finalize(chain, header, statedb, body)
 
-	// Assign the final state root to header.
+	// Assign the final state root to header
 	header.Root = statedb.IntermediateRoot(chain.Config().IsEIP158(header.Number))
 
 	// Assemble and return the final block for sealing
-	return types.NewBlock(header, body, receipts, trie.NewStackTrie(nil)), nil
+	return types.NewBlock(header, &types.Body{Transactions: body.Transactions}, receipts, trie.NewStackTrie(nil)), nil
 }
 
-// Authorize injects a private key into the consensus engine to mint new blocks with.
-func (t *Tendermint) Authorize(signer common.Address, signFn SignerFn) {
-	t.lock.Lock()
-	defer t.lock.Unlock()
-
-	t.signer = signer
-	t.signFn = signFn
-}
-
-// Seal implements consensus.Engine, attempting to create a sealed block using
-// the local signing credentials.
+// Seal generates a new block with valid consensus seal
 func (t *Tendermint) Seal(chain consensus.ChainHeaderReader, block *types.Block, results chan<- *types.Block, stop <-chan struct{}) error {
 	header := block.Header()
-
-	// Sealing the genesis block is not supported
 	number := header.Number.Uint64()
+
+	// Genesis block not sealable
 	if number == 0 {
 		return errUnknownBlock
 	}
 
-	// Don't hold the signer fields for the entire sealing procedure
+	// Don't hold lock while waiting
 	t.lock.RLock()
 	signer, signFn := t.signer, t.signFn
 	t.lock.RUnlock()
 
-	// Bail out if we're unauthorized to sign a block
+	if signFn == nil {
+		return errors.New("signing function not set")
+	}
+
 	snap, err := t.snapshot(chain, number-1, header.ParentHash, nil)
 	if err != nil {
 		return err
@@ -625,62 +411,67 @@ func (t *Tendermint) Seal(chain consensus.ChainHeaderReader, block *types.Block,
 		return errUnauthorizedValidator
 	}
 
-	// If we're amongst the recent signers, wait for the next block
+	// Check if we recently signed
 	for seen, recent := range snap.Recents {
 		if recent == signer {
-			// Signer is among recents, only wait if current block doesn't shift it out
-			if limit := uint64(len(snap.Validators)/2 + 1); seen > number-limit {
-				return errRecentlySigned
+			limit := uint64(len(snap.Validators)/2 + 1)
+			if number < limit || seen > number-limit {
+				log.Info("Signed recently, must wait for others")
+				return nil
 			}
 		}
 	}
 
-	// Sweet, the protocol permits us to sign the block, wait for our time
-	delay := time.Until(time.Unix(int64(header.Time), 0))
+	// Calculate delay
+	delay := time.Unix(int64(header.Time), 0).Sub(time.Now())
 	if header.Difficulty.Cmp(diffNoTurn) == 0 {
-		// It's not our turn explicitly to sign, delay it a bit
-		wiggle := time.Duration(len(snap.Validators)/2+1) * wiggleTime
-		delay += time.Duration(mrand.Int63n(int64(wiggle)))
+		// Out-of-turn validators wait a bit
+		wiggle := time.Duration(len(snap.Validators)/2+1) * time.Duration(t.config.Period) * time.Second / 2
+		delay += wiggle
 
 		log.Trace("Out-of-turn signing requested", "wiggle", common.PrettyDuration(wiggle))
 	}
 
-	// Sign all the things!
-	sighash, err := signFn(signer, "application/x-tendermint-header", TendermintRLP(header))
+	// Sign the block
+	sighash, err := signFn(accounts.Account{Address: signer}, "", SealHash(header).Bytes())
 	if err != nil {
 		return err
 	}
 	copy(header.Extra[len(header.Extra)-extraSeal:], sighash)
 
-	// Wait until sealing is terminated or delay timeout
-	log.Trace("Waiting for slot to sign and propagate", "delay", common.PrettyDuration(delay))
-	go func() {
-		select {
-		case <-stop:
-			return
-		case <-time.After(delay):
-		}
+	// Wait for seal or stop
+	select {
+	case <-stop:
+		return nil
+	case <-time.After(delay):
+	}
 
-		select {
-		case results <- block.WithSeal(header):
-		default:
-			log.Warn("Sealing result is not read by miner", "sealhash", SealHash(header))
-		}
-	}()
-
+	select {
+	case results <- block.WithSeal(header):
+	default:
+		log.Warn("Sealing result not read by miner", "sealhash", SealHash(header))
+	}
 	return nil
 }
 
-// CalcDifficulty is the difficulty adjustment algorithm. It returns the difficulty
-// that a new block should have.
+// SealHash returns the hash of a block prior to being sealed
+func (t *Tendermint) SealHash(header *types.Header) common.Hash {
+	return SealHash(header)
+}
+
+// CalcDifficulty calculates the difficulty for a new block
 func (t *Tendermint) CalcDifficulty(chain consensus.ChainHeaderReader, time uint64, parent *types.Header) *big.Int {
 	snap, err := t.snapshot(chain, parent.Number.Uint64(), parent.Hash(), nil)
 	if err != nil {
 		return nil
 	}
-	return calcDifficulty(snap, t.signer)
+	t.lock.RLock()
+	signer := t.signer
+	t.lock.RUnlock()
+	return calcDifficulty(snap, signer)
 }
 
+// calcDifficulty returns the difficulty for a new block
 func calcDifficulty(snap *Snapshot, signer common.Address) *big.Int {
 	if snap.inturn(snap.Number+1, signer) {
 		return new(big.Int).Set(diffInTurn)
@@ -688,43 +479,38 @@ func calcDifficulty(snap *Snapshot, signer common.Address) *big.Int {
 	return new(big.Int).Set(diffNoTurn)
 }
 
-// SealHash returns the hash of a block prior to it being sealed.
-func (t *Tendermint) SealHash(header *types.Header) common.Hash {
-	return SealHash(header)
-}
-
-// Close implements consensus.Engine. It's a noop for tendermint.
+// Close terminates any background threads
 func (t *Tendermint) Close() error {
 	return nil
 }
 
-// APIs implements consensus.Engine, returning the user facing RPC API.
-func (t *Tendermint) APIs(chain consensus.ChainHeaderReader) []any {
-	return []any{&API{chain: chain, tendermint: t}}
+// APIs returns the RPC APIs this consensus engine provides
+func (t *Tendermint) APIs(chain consensus.ChainHeaderReader) []rpc.API {
+	return []rpc.API{{
+		Namespace: "tendermint",
+		Service:   &API{chain: chain, tendermint: t},
+	}}
 }
 
-// SealHash returns the hash of a block prior to it being sealed.
-func SealHash(header *types.Header) common.Hash {
-	return sealHash(header)
+// Authorize sets the signer and signing function
+func (t *Tendermint) Authorize(signer common.Address, signFn SignerFn) {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+
+	t.signer = signer
+	t.signFn = signFn
 }
 
-func sealHash(header *types.Header) (hash common.Hash) {
+// SealHash returns the hash of a block prior to being sealed
+func SealHash(header *types.Header) (hash common.Hash) {
 	hasher := sha3.NewLegacyKeccak256()
-	encodeTendermintSigHeader(hasher, header)
-	hasher.Sum(hash[:0])
+	encodeSealHash(hasher, header)
+	hasher.(crypto.KeccakState).Read(hash[:])
 	return hash
 }
 
-// TendermintRLP returns the rlp bytes which needs to be signed for the Tendermint
-// sealing. The RLP to sign consists of the entire header apart from the 65 byte signature
-// contained at the end of the extra data.
-func TendermintRLP(header *types.Header) []byte {
-	b := new(bytes.Buffer)
-	encodeTendermintSigHeader(b, header)
-	return b.Bytes()
-}
-
-func encodeTendermintSigHeader(w io.Writer, header *types.Header) {
+// encodeSealHash encodes the header for seal hash calculation
+func encodeSealHash(hasher io.Writer, header *types.Header) {
 	enc := []interface{}{
 		header.ParentHash,
 		header.UncleHash,
@@ -738,33 +524,40 @@ func encodeTendermintSigHeader(w io.Writer, header *types.Header) {
 		header.GasLimit,
 		header.GasUsed,
 		header.Time,
-		header.Extra[:len(header.Extra)-crypto.SignatureLength], // Yes, this will panic if extra is too short
+		header.Extra[:len(header.Extra)-crypto.SignatureLength],
 		header.MixDigest,
 		header.Nonce,
 	}
 	if header.BaseFee != nil {
 		enc = append(enc, header.BaseFee)
 	}
-	if err := rlp.Encode(w, enc); err != nil {
-		panic("can't encode: " + err.Error())
+	if header.WithdrawalsHash != nil {
+		enc = append(enc, header.WithdrawalsHash)
 	}
+	if header.BlobGasUsed != nil {
+		enc = append(enc, header.BlobGasUsed)
+	}
+	if header.ExcessBlobGas != nil {
+		enc = append(enc, header.ExcessBlobGas)
+	}
+	if header.ParentBeaconRoot != nil {
+		enc = append(enc, header.ParentBeaconRoot)
+	}
+	rlp.Encode(hasher, enc)
 }
 
-// ecrecover extracts the Ethereum account address from a signed header.
+// ecrecover extracts the Obsidian address from a signed header
 func ecrecover(header *types.Header, sigcache *sigLRU) (common.Address, error) {
-	// If the signature's already cached, return that
 	hash := header.Hash()
-	if address, ok := sigcache.Get(hash); ok {
+	if address, known := sigcache.Get(hash); known {
 		return address, nil
 	}
-	// Retrieve the signature from the header extra-data
 	if len(header.Extra) < extraSeal {
 		return common.Address{}, errMissingSignature
 	}
 	signature := header.Extra[len(header.Extra)-extraSeal:]
 
-	// Recover the public key and the Ethereum address
-	pubkey, err := crypto.Ecrecover(sealHash(header).Bytes(), signature)
+	pubkey, err := crypto.Ecrecover(SealHash(header).Bytes(), signature)
 	if err != nil {
 		return common.Address{}, err
 	}
@@ -775,23 +568,83 @@ func ecrecover(header *types.Header, sigcache *sigLRU) (common.Address, error) {
 	return signer, nil
 }
 
-// wiggleTime is the random delay added for out-of-turn validators
-var wiggleTime = 500 * time.Millisecond
+// snapshot retrieves the validator snapshot at a given point
+func (t *Tendermint) snapshot(chain consensus.ChainHeaderReader, number uint64, hash common.Hash, parents []*types.Header) (*Snapshot, error) {
+	var (
+		headers []*types.Header
+		snap    *Snapshot
+	)
 
-// Propose injects a new authorization proposal that the validator will attempt to
-// push through.
-func (t *Tendermint) Propose(address common.Address, auth bool) {
-	t.lock.Lock()
-	defer t.lock.Unlock()
+	for snap == nil {
+		// Check in-memory cache
+		if s, ok := t.recents.Get(hash); ok {
+			snap = s
+			break
+		}
 
-	t.proposals[address] = auth
-}
+		// Check on-disk checkpoint
+		if number%checkpointInterval == 0 {
+			if s, err := loadSnapshot(t.config, t.signatures, t.db, hash); err == nil {
+				log.Trace("Loaded voting snapshot from disk", "number", number, "hash", hash)
+				snap = s
+				break
+			}
+		}
 
-// Discard drops a currently running proposal, stopping the validator from casting
-// further votes (either for or against).
-func (t *Tendermint) Discard(address common.Address) {
-	t.lock.Lock()
-	defer t.lock.Unlock()
+		// Genesis block or checkpoint
+		if number == 0 || (number%t.config.Epoch == 0 && (len(headers) > params.FullImmutabilityThreshold || chain.GetHeaderByNumber(number-1) == nil)) {
+			checkpoint := chain.GetHeaderByNumber(number)
+			if checkpoint != nil {
+				hash := checkpoint.Hash()
+				validators := make([]common.Address, (len(checkpoint.Extra)-extraVanity-extraSeal)/common.AddressLength)
+				for i := 0; i < len(validators); i++ {
+					copy(validators[i][:], checkpoint.Extra[extraVanity+i*common.AddressLength:])
+				}
+				snap = newSnapshot(t.config, t.signatures, number, hash, validators)
+				if err := snap.store(t.db); err != nil {
+					return nil, err
+				}
+				log.Info("Stored checkpoint snapshot to disk", "number", number, "hash", hash)
+				break
+			}
+		}
 
-	delete(t.proposals, address)
+		// Get parent header
+		var header *types.Header
+		if len(parents) > 0 {
+			header = parents[len(parents)-1]
+			if header.Hash() != hash || header.Number.Uint64() != number {
+				return nil, consensus.ErrUnknownAncestor
+			}
+			parents = parents[:len(parents)-1]
+		} else {
+			header = chain.GetHeader(hash, number)
+			if header == nil {
+				return nil, consensus.ErrUnknownAncestor
+			}
+		}
+		headers = append(headers, header)
+		number, hash = number-1, header.ParentHash
+	}
+
+	// Reverse headers
+	for i := 0; i < len(headers)/2; i++ {
+		headers[i], headers[len(headers)-1-i] = headers[len(headers)-1-i], headers[i]
+	}
+
+	// Apply headers to snapshot
+	snap, err := snap.apply(headers)
+	if err != nil {
+		return nil, err
+	}
+	t.recents.Add(snap.Hash, snap)
+
+	// Store checkpoint
+	if snap.Number%checkpointInterval == 0 && len(headers) > 0 {
+		if err = snap.store(t.db); err != nil {
+			return nil, err
+		}
+		log.Trace("Stored voting snapshot to disk", "number", snap.Number, "hash", snap.Hash)
+	}
+	return snap, nil
 }

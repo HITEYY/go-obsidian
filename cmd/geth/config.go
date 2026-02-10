@@ -266,7 +266,7 @@ func makeFullNode(ctx *cli.Context) *node.Node {
 	if ctx.IsSet(utils.GraphQLEnabledFlag.Name) {
 		utils.RegisterGraphQLService(stack, backend, filterSystem, &cfg.Node)
 	}
-	// Add the Ethereum Stats daemon if requested.
+	// Add the Obsidian Stats daemon if requested.
 	if cfg.Ethstats.URL != "" {
 		utils.RegisterEthStatsService(stack, backend, cfg.Ethstats.URL)
 	}

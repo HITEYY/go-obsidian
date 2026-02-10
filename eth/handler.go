@@ -465,7 +465,7 @@ func (h *handler) Stop() {
 	h.peers.close()
 	h.wg.Wait()
 
-	log.Info("Ethereum protocol stopped")
+	log.Info("Obsidian protocol stopped")
 }
 
 // BroadcastTransactions will propagate a batch of transactions

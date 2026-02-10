@@ -19,7 +19,7 @@ package graphql
 const schema string = `
     # Bytes32 is a 32 byte binary string, represented as 0x-prefixed hexadecimal.
     scalar Bytes32
-    # Address is a 20 byte Ethereum address, represented as 0x-prefixed hexadecimal.
+    # Address is a 20 byte Obsidian address, represented as 0x-prefixed hexadecimal.
     scalar Address
     # Bytes is an arbitrary length binary string, represented as 0x-prefixed hexadecimal.
     # An empty byte string is represented as '0x'. Byte strings must have an even number of hexadecimal nybbles.
@@ -38,7 +38,7 @@ const schema string = `
         mutation: Mutation
     }
 
-    # Account is an Ethereum account at a particular block.
+    # Account is an Obsidian account at a particular block.
     type Account {
         # Address is the address owning the account.
         address: Address!
@@ -89,7 +89,7 @@ const schema string = `
         amount: Long!
     }
 
-    # Transaction is an Ethereum transaction.
+    # Transaction is an Obsidian transaction.
     type Transaction {
         # Hash is the hash of this transaction.
         hash: Bytes32!
@@ -192,7 +192,7 @@ const schema string = `
         topics: [[Bytes32!]!]
     }
 
-    # Block is an Ethereum block.
+    # Block is an Obsidian block.
     type Block {
         # Number is the number of this block, starting at 0 for the genesis block.
         number: Long!
@@ -255,7 +255,7 @@ const schema string = `
         transactionAt(index: Long!): Transaction
         # Logs returns a filtered set of logs from this block.
         logs(filter: BlockFilterCriteria!): [Log!]!
-        # Account fetches an Ethereum account at the current block's state.
+        # Account fetches an Obsidian account at the current block's state.
         account(address: Address!): Account!
         # Call executes a local call operation at the current block's state.
         call(data: CallData!): CallResult
@@ -350,7 +350,7 @@ const schema string = `
         transactionCount: Long!
         # Transactions is a list of transactions in the current pending state.
         transactions: [Transaction!]
-        # Account fetches an Ethereum account for the pending state.
+        # Account fetches an Obsidian account for the pending state.
         account(address: Address!): Account!
         # Call executes a local call operation for the pending state.
         call(data: CallData!): CallResult
@@ -360,7 +360,7 @@ const schema string = `
     }
 
     type Query {
-        # Block fetches an Ethereum block by number or by hash. If neither is
+        # Block fetches an Obsidian block by number or by hash. If neither is
         # supplied, the most recent known block is returned.
         block(number: Long, hash: Bytes32): Block
         # Blocks returns all the blocks between two numbers, inclusive. If

@@ -207,7 +207,7 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 	if bcVersion != nil {
 		dbVer = fmt.Sprintf("%d", *bcVersion)
 	}
-	log.Info("Initialising Ethereum protocol", "network", networkID, "dbversion", dbVer)
+	log.Info("Initialising Obsidian protocol", "network", networkID, "dbversion", dbVer)
 
 	// Create BlockChain object.
 	if !config.SkipBcVersionCheck {
