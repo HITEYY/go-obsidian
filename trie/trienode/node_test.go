@@ -25,9 +25,9 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/internal/testrand"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/crypto"
+	"github.com/HITEYY/go-obsidian/internal/testrand"
 )
 
 func makeTestSet(owner common.Hash, n int, paths [][]byte) *NodeSet {

@@ -31,15 +31,15 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/mclock"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/p2p/discover"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/p2p/enr"
-	"github.com/ethereum/go-ethereum/p2p/netutil"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/common/mclock"
+	"github.com/HITEYY/go-obsidian/crypto"
+	"github.com/HITEYY/go-obsidian/event"
+	"github.com/HITEYY/go-obsidian/log"
+	"github.com/HITEYY/go-obsidian/p2p/discover"
+	"github.com/HITEYY/go-obsidian/p2p/enode"
+	"github.com/HITEYY/go-obsidian/p2p/enr"
+	"github.com/HITEYY/go-obsidian/p2p/netutil"
 )
 
 const (

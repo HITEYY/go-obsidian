@@ -20,7 +20,7 @@ package crypto
 
 import (
 	"github.com/ProjectZKM/Ziren/crates/go-runtime/zkvm_runtime"
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/HITEYY/go-obsidian/common"
 )
 
 // zirenKeccakState implements the KeccakState interface using the Ziren zkvm_runtime.

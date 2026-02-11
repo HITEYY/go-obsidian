@@ -27,16 +27,16 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/consensus/misc/eip1559"
-	"github.com/ethereum/go-ethereum/core/state"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/eth/filters"
-	"github.com/ethereum/go-ethereum/internal/ethapi"
-	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/HITEYY/go-obsidian"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/common/hexutil"
+	"github.com/HITEYY/go-obsidian/consensus/misc/eip1559"
+	"github.com/HITEYY/go-obsidian/core/state"
+	"github.com/HITEYY/go-obsidian/core/types"
+	"github.com/HITEYY/go-obsidian/eth/filters"
+	"github.com/HITEYY/go-obsidian/internal/ethapi"
+	"github.com/HITEYY/go-obsidian/rlp"
+	"github.com/HITEYY/go-obsidian/rpc"
 )
 
 var (

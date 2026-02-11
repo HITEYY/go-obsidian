@@ -22,10 +22,10 @@ import (
 	"math/big"
 	"sort"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/ethdb"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/core/types"
+	"github.com/HITEYY/go-obsidian/ethdb"
+	"github.com/HITEYY/go-obsidian/params"
 )
 
 // Vote represents a single vote that an authorized validator made to modify the

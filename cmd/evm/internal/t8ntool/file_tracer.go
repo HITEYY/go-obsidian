@@ -24,11 +24,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/tracing"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/eth/tracers"
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/core/tracing"
+	"github.com/HITEYY/go-obsidian/core/types"
+	"github.com/HITEYY/go-obsidian/eth/tracers"
+	"github.com/HITEYY/go-obsidian/log"
 )
 
 // fileWritingTracer wraps either a tracer or a logger. On tx start,

@@ -22,12 +22,12 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/accounts"
-	"github.com/ethereum/go-ethereum/accounts/external"
-	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/HITEYY/go-obsidian/accounts"
+	"github.com/HITEYY/go-obsidian/accounts/external"
+	"github.com/HITEYY/go-obsidian/accounts/keystore"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/core/types"
+	"github.com/HITEYY/go-obsidian/crypto"
 )
 
 // ErrNotAuthorized is returned when an account is not properly unlocked.

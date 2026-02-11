@@ -19,12 +19,12 @@ package blobpool
 import (
 	"errors"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/misc/eip4844"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/params"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/consensus/misc/eip4844"
+	"github.com/HITEYY/go-obsidian/core/types"
+	"github.com/HITEYY/go-obsidian/log"
+	"github.com/HITEYY/go-obsidian/params"
+	"github.com/HITEYY/go-obsidian/rlp"
 	"github.com/holiman/billy"
 )
 

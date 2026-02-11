@@ -21,11 +21,11 @@ import (
 	"os"
 	"runtime/debug"
 
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/stateless"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/HITEYY/go-obsidian/core"
+	"github.com/HITEYY/go-obsidian/core/stateless"
+	"github.com/HITEYY/go-obsidian/core/types"
+	"github.com/HITEYY/go-obsidian/core/vm"
+	"github.com/HITEYY/go-obsidian/rlp"
 )
 
 // Payload represents the input data for stateless execution containing

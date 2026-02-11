@@ -29,8 +29,8 @@ import (
 	"text/template"
 	"unicode"
 
-	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/HITEYY/go-obsidian/accounts/abi"
+	"github.com/HITEYY/go-obsidian/log"
 )
 
 var (

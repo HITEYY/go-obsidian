@@ -46,7 +46,7 @@ To add support for a new platform (e.g., "myplatform"), create a new file with t
 package main
 
 import (
-    "github.com/ethereum/go-ethereum/params"
+    "github.com/HITEYY/go-obsidian/params"
     // ... other imports as needed
 )
 

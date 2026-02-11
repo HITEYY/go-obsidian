@@ -21,11 +21,11 @@ import (
 	"encoding"
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common/mclock"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/p2p/nat"
-	"github.com/ethereum/go-ethereum/p2p/netutil"
+	"github.com/HITEYY/go-obsidian/common/mclock"
+	"github.com/HITEYY/go-obsidian/log"
+	"github.com/HITEYY/go-obsidian/p2p/enode"
+	"github.com/HITEYY/go-obsidian/p2p/nat"
+	"github.com/HITEYY/go-obsidian/p2p/netutil"
 )
 
 //go:generate go run github.com/fjl/gencodec -type Config -field-override configMarshaling -formats toml -out config_toml.go

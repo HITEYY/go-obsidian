@@ -20,11 +20,11 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/common/mclock"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/p2p/enr"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/HITEYY/go-obsidian/common/hexutil"
+	"github.com/HITEYY/go-obsidian/common/mclock"
+	"github.com/HITEYY/go-obsidian/p2p/enode"
+	"github.com/HITEYY/go-obsidian/p2p/enr"
+	"github.com/HITEYY/go-obsidian/rlp"
 )
 
 // Packet is implemented by all message types.

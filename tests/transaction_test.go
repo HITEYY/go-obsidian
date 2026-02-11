@@ -19,7 +19,7 @@ package tests
 import (
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/HITEYY/go-obsidian/common"
 )
 
 func TestTransaction(t *testing.T) {

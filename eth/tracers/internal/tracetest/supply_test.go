@@ -27,20 +27,20 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/consensus/beacon"
-	"github.com/ethereum/go-ethereum/consensus/ethash"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/rawdb"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/eth/tracers"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/common/hexutil"
+	"github.com/HITEYY/go-obsidian/consensus/beacon"
+	"github.com/HITEYY/go-obsidian/consensus/ethash"
+	"github.com/HITEYY/go-obsidian/core"
+	"github.com/HITEYY/go-obsidian/core/rawdb"
+	"github.com/HITEYY/go-obsidian/core/types"
+	"github.com/HITEYY/go-obsidian/core/vm"
+	"github.com/HITEYY/go-obsidian/crypto"
+	"github.com/HITEYY/go-obsidian/eth/tracers"
+	"github.com/HITEYY/go-obsidian/params"
 
 	// Force-load live packages, to trigger registration
-	_ "github.com/ethereum/go-ethereum/eth/tracers/live"
+	_ "github.com/HITEYY/go-obsidian/eth/tracers/live"
 )
 
 type supplyInfoIssuance struct {

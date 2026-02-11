@@ -19,8 +19,8 @@ package history
 import (
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/params"
 )
 
 // HistoryMode configures history pruning.

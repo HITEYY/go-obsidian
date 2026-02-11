@@ -19,9 +19,9 @@ package vm
 import (
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/math"
-	"github.com/ethereum/go-ethereum/core/tracing"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/common/math"
+	"github.com/HITEYY/go-obsidian/core/tracing"
 	"github.com/holiman/uint256"
 )
 

@@ -31,16 +31,16 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/forkid"
-	"github.com/ethereum/go-ethereum/core/state"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/eth/protocols/eth"
-	"github.com/ethereum/go-ethereum/params"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/common/hexutil"
+	"github.com/HITEYY/go-obsidian/core"
+	"github.com/HITEYY/go-obsidian/core/forkid"
+	"github.com/HITEYY/go-obsidian/core/state"
+	"github.com/HITEYY/go-obsidian/core/types"
+	"github.com/HITEYY/go-obsidian/crypto"
+	"github.com/HITEYY/go-obsidian/eth/protocols/eth"
+	"github.com/HITEYY/go-obsidian/params"
+	"github.com/HITEYY/go-obsidian/rlp"
 )
 
 // Chain is a lightweight blockchain-like store which can read a hivechain

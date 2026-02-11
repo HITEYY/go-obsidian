@@ -26,9 +26,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/internal/flags"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/internal/flags"
+	"github.com/HITEYY/go-obsidian/rpc"
 	"github.com/urfave/cli/v2"
 )
 

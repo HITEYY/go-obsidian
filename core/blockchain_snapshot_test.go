@@ -29,13 +29,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/consensus"
-	"github.com/ethereum/go-ethereum/consensus/ethash"
-	"github.com/ethereum/go-ethereum/core/rawdb"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/ethdb"
-	"github.com/ethereum/go-ethereum/ethdb/pebble"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/HITEYY/go-obsidian/consensus"
+	"github.com/HITEYY/go-obsidian/consensus/ethash"
+	"github.com/HITEYY/go-obsidian/core/rawdb"
+	"github.com/HITEYY/go-obsidian/core/types"
+	"github.com/HITEYY/go-obsidian/ethdb"
+	"github.com/HITEYY/go-obsidian/ethdb/pebble"
+	"github.com/HITEYY/go-obsidian/params"
 )
 
 // snapshotTestBasic wraps the common testing fields in the snapshot tests.

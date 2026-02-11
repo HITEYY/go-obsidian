@@ -19,12 +19,12 @@ package sync
 import (
 	"sort"
 
-	"github.com/ethereum/go-ethereum/beacon/light"
-	"github.com/ethereum/go-ethereum/beacon/light/request"
-	"github.com/ethereum/go-ethereum/beacon/params"
-	"github.com/ethereum/go-ethereum/beacon/types"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/HITEYY/go-obsidian/beacon/light"
+	"github.com/HITEYY/go-obsidian/beacon/light/request"
+	"github.com/HITEYY/go-obsidian/beacon/params"
+	"github.com/HITEYY/go-obsidian/beacon/types"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/log"
 )
 
 const maxUpdateRequest = 8 // maximum number of updates requested in a single request

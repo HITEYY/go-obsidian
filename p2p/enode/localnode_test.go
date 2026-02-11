@@ -23,9 +23,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/p2p/enr"
-	"github.com/ethereum/go-ethereum/p2p/netutil"
+	"github.com/HITEYY/go-obsidian/crypto"
+	"github.com/HITEYY/go-obsidian/p2p/enr"
+	"github.com/HITEYY/go-obsidian/p2p/netutil"
 	"github.com/stretchr/testify/assert"
 )
 

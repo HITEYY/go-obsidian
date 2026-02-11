@@ -26,14 +26,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ethereum/go-ethereum/cmd/devp2p/internal/v4test"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/p2p/discover"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/params"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/HITEYY/go-obsidian/cmd/devp2p/internal/v4test"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/crypto"
+	"github.com/HITEYY/go-obsidian/log"
+	"github.com/HITEYY/go-obsidian/p2p/discover"
+	"github.com/HITEYY/go-obsidian/p2p/enode"
+	"github.com/HITEYY/go-obsidian/params"
+	"github.com/HITEYY/go-obsidian/rpc"
 	"github.com/urfave/cli/v2"
 )
 

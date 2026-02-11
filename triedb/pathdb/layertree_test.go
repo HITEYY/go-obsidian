@@ -20,8 +20,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/rawdb"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/core/rawdb"
 )
 
 func newTestLayerTree() *layerTree {

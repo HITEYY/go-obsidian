@@ -26,12 +26,12 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/eth/tracers"
-	"github.com/ethereum/go-ethereum/eth/tracers/logger"
-	"github.com/ethereum/go-ethereum/internal/flags"
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/crypto"
+	"github.com/HITEYY/go-obsidian/eth/tracers"
+	"github.com/HITEYY/go-obsidian/eth/tracers/logger"
+	"github.com/HITEYY/go-obsidian/internal/flags"
+	"github.com/HITEYY/go-obsidian/log"
 	"github.com/urfave/cli/v2"
 )
 

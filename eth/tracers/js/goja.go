@@ -25,18 +25,18 @@ import (
 	"sync"
 
 	"github.com/dop251/goja"
-	"github.com/ethereum/go-ethereum/core/tracing"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/eth/tracers"
-	"github.com/ethereum/go-ethereum/eth/tracers/internal"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/HITEYY/go-obsidian/core/tracing"
+	"github.com/HITEYY/go-obsidian/core/types"
+	"github.com/HITEYY/go-obsidian/eth/tracers"
+	"github.com/HITEYY/go-obsidian/eth/tracers/internal"
+	"github.com/HITEYY/go-obsidian/params"
 	"github.com/holiman/uint256"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/ethereum/go-ethereum/crypto"
-	jsassets "github.com/ethereum/go-ethereum/eth/tracers/js/internal/tracers"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/common/hexutil"
+	"github.com/HITEYY/go-obsidian/core/vm"
+	"github.com/HITEYY/go-obsidian/crypto"
+	jsassets "github.com/HITEYY/go-obsidian/eth/tracers/js/internal/tracers"
 )
 
 var assetTracers = make(map[string]string)

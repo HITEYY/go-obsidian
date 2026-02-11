@@ -7,7 +7,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/HITEYY/go-obsidian/common"
 )
 
 func TestPedersenCommitment(t *testing.T) {

@@ -21,10 +21,10 @@ import (
 	"sync/atomic"
 
 	mapset "github.com/deckarep/golang-set/v2"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/p2p"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/core/types"
+	"github.com/HITEYY/go-obsidian/p2p"
+	"github.com/HITEYY/go-obsidian/rlp"
 )
 
 const (

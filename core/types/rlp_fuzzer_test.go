@@ -22,7 +22,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/HITEYY/go-obsidian/rlp"
 	"github.com/holiman/uint256"
 )
 

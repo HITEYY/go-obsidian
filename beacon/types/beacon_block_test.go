@@ -21,7 +21,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/HITEYY/go-obsidian/common"
 )
 
 func TestBlockFromJSON(t *testing.T) {

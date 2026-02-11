@@ -25,17 +25,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/accounts"
-	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/internal/ethapi"
-	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/ethereum/go-ethereum/signer/core"
-	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	"github.com/ethereum/go-ethereum/signer/fourbyte"
-	"github.com/ethereum/go-ethereum/signer/storage"
+	"github.com/HITEYY/go-obsidian/accounts"
+	"github.com/HITEYY/go-obsidian/accounts/keystore"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/common/hexutil"
+	"github.com/HITEYY/go-obsidian/core/types"
+	"github.com/HITEYY/go-obsidian/internal/ethapi"
+	"github.com/HITEYY/go-obsidian/rlp"
+	"github.com/HITEYY/go-obsidian/signer/core"
+	"github.com/HITEYY/go-obsidian/signer/core/apitypes"
+	"github.com/HITEYY/go-obsidian/signer/fourbyte"
+	"github.com/HITEYY/go-obsidian/signer/storage"
 )
 
 // Used for testing

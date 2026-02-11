@@ -22,8 +22,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/HITEYY/go-obsidian/accounts/abi"
+	"github.com/HITEYY/go-obsidian/crypto"
 )
 
 type bindV2Test struct {

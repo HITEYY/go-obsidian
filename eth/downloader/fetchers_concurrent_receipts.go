@@ -19,9 +19,9 @@ package downloader
 import (
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/eth/protocols/eth"
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/eth/protocols/eth"
+	"github.com/HITEYY/go-obsidian/log"
 )
 
 // receiptQueue implements typedQueue and is a type adapter between the generic

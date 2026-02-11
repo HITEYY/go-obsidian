@@ -19,7 +19,7 @@ package misc
 import (
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/HITEYY/go-obsidian/params"
 )
 
 // VerifyGaslimit verifies the header gas limit according increase/decrease

@@ -23,12 +23,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/accounts/abi/bind/v2"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/ethclient/simulated"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/HITEYY/go-obsidian/accounts/abi/bind/v2"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/core/types"
+	"github.com/HITEYY/go-obsidian/crypto"
+	"github.com/HITEYY/go-obsidian/ethclient/simulated"
+	"github.com/HITEYY/go-obsidian/params"
 )
 
 var waitDeployedTests = map[string]struct {

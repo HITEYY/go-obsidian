@@ -19,7 +19,7 @@ package bintrie
 import (
 	"slices"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/HITEYY/go-obsidian/common"
 )
 
 type Empty struct{}

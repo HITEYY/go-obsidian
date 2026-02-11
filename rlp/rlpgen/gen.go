@@ -23,7 +23,7 @@ import (
 	"go/types"
 	"sort"
 
-	"github.com/ethereum/go-ethereum/rlp/internal/rlpstruct"
+	"github.com/HITEYY/go-obsidian/rlp/internal/rlpstruct"
 	"golang.org/x/tools/go/packages"
 )
 

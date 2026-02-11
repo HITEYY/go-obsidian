@@ -22,8 +22,8 @@ import (
 	"math"
 	"os"
 
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/HITEYY/go-obsidian/log"
+	"github.com/HITEYY/go-obsidian/rlp"
 )
 
 const (

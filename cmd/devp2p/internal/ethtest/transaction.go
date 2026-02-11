@@ -22,10 +22,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/eth/protocols/eth"
-	"github.com/ethereum/go-ethereum/internal/utesting"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/core/types"
+	"github.com/HITEYY/go-obsidian/eth/protocols/eth"
+	"github.com/HITEYY/go-obsidian/internal/utesting"
 )
 
 // sendTxs sends the given transactions to the node and

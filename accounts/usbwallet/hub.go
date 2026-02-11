@@ -23,9 +23,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/ethereum/go-ethereum/accounts"
-	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/HITEYY/go-obsidian/accounts"
+	"github.com/HITEYY/go-obsidian/event"
+	"github.com/HITEYY/go-obsidian/log"
 	"github.com/karalabe/hid"
 )
 

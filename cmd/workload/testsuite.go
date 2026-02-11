@@ -22,12 +22,12 @@ import (
 	"io/fs"
 	"os"
 
-	"github.com/ethereum/go-ethereum/core/history"
-	"github.com/ethereum/go-ethereum/internal/flags"
-	"github.com/ethereum/go-ethereum/internal/utesting"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/params"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/HITEYY/go-obsidian/core/history"
+	"github.com/HITEYY/go-obsidian/internal/flags"
+	"github.com/HITEYY/go-obsidian/internal/utesting"
+	"github.com/HITEYY/go-obsidian/log"
+	"github.com/HITEYY/go-obsidian/params"
+	"github.com/HITEYY/go-obsidian/rpc"
 	"github.com/urfave/cli/v2"
 )
 

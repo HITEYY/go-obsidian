@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ethereum/go-ethereum/internal/debug"
-	"github.com/ethereum/go-ethereum/internal/flags"
+	"github.com/HITEYY/go-obsidian/internal/debug"
+	"github.com/HITEYY/go-obsidian/internal/flags"
 	"github.com/urfave/cli/v2"
 )
 

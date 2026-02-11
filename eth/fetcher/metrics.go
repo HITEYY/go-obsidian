@@ -18,7 +18,7 @@
 
 package fetcher
 
-import "github.com/ethereum/go-ethereum/metrics"
+import "github.com/HITEYY/go-obsidian/metrics"
 
 var (
 	txAnnounceInMeter          = metrics.NewRegisteredMeter("eth/fetcher/transaction/announces/in", nil)

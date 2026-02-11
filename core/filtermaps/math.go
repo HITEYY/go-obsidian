@@ -24,7 +24,7 @@ import (
 	"math"
 	"slices"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/HITEYY/go-obsidian/common"
 )
 
 // Params defines the basic parameters of the log index structure.

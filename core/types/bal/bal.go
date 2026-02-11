@@ -20,7 +20,7 @@ import (
 	"bytes"
 	"maps"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/HITEYY/go-obsidian/common"
 	"github.com/holiman/uint256"
 )
 

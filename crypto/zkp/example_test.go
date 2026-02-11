@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/crypto/zkp"
+	"github.com/HITEYY/go-obsidian/crypto/zkp"
 )
 
 // ExampleConfidentialTransfer demonstrates a complete confidential transfer workflow

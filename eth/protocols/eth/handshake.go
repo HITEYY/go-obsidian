@@ -21,10 +21,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/forkid"
-	"github.com/ethereum/go-ethereum/metrics"
-	"github.com/ethereum/go-ethereum/p2p"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/core/forkid"
+	"github.com/HITEYY/go-obsidian/metrics"
+	"github.com/HITEYY/go-obsidian/p2p"
 )
 
 const (

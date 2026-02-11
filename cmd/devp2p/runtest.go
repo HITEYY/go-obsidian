@@ -19,10 +19,10 @@ package main
 import (
 	"os"
 
-	"github.com/ethereum/go-ethereum/cmd/devp2p/internal/v4test"
-	"github.com/ethereum/go-ethereum/internal/flags"
-	"github.com/ethereum/go-ethereum/internal/utesting"
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/HITEYY/go-obsidian/cmd/devp2p/internal/v4test"
+	"github.com/HITEYY/go-obsidian/internal/flags"
+	"github.com/HITEYY/go-obsidian/internal/utesting"
+	"github.com/HITEYY/go-obsidian/log"
 	"github.com/urfave/cli/v2"
 )
 

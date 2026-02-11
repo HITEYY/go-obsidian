@@ -20,7 +20,7 @@ import (
 	"net"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/HITEYY/go-obsidian/log"
 )
 
 // StartIPCEndpoint starts an IPC endpoint.

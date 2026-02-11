@@ -25,14 +25,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/console/prompt"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/eth"
-	"github.com/ethereum/go-ethereum/eth/ethconfig"
-	"github.com/ethereum/go-ethereum/internal/jsre"
-	"github.com/ethereum/go-ethereum/miner"
-	"github.com/ethereum/go-ethereum/node"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/console/prompt"
+	"github.com/HITEYY/go-obsidian/core"
+	"github.com/HITEYY/go-obsidian/eth"
+	"github.com/HITEYY/go-obsidian/eth/ethconfig"
+	"github.com/HITEYY/go-obsidian/internal/jsre"
+	"github.com/HITEYY/go-obsidian/miner"
+	"github.com/HITEYY/go-obsidian/node"
 )
 
 const (

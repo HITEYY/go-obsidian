@@ -19,7 +19,7 @@ package trie
 import (
 	"bytes"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/HITEYY/go-obsidian/common"
 )
 
 // ListHasher is a wrapper of the Merkle-Patricia-Trie, which implements

@@ -21,7 +21,7 @@ import (
 	"encoding/binary"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/HITEYY/go-obsidian/common"
 )
 
 var (

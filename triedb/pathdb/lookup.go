@@ -21,7 +21,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/HITEYY/go-obsidian/common"
 	"golang.org/x/sync/errgroup"
 )
 

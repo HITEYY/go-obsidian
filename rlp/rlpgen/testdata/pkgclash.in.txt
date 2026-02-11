@@ -3,8 +3,8 @@
 package test
 
 import (
-       eth1 "github.com/ethereum/go-ethereum/eth"
-       eth2 "github.com/ethereum/go-ethereum/eth/protocols/eth"
+       eth1 "github.com/HITEYY/go-obsidian/eth"
+       eth2 "github.com/HITEYY/go-obsidian/eth/protocols/eth"
 )
 
 type Test struct {

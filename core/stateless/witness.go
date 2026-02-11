@@ -22,8 +22,8 @@ import (
 	"slices"
 	"sync"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/core/types"
 )
 
 // HeaderReader is an interface to pull in headers in place of block hashes for

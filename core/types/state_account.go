@@ -19,8 +19,8 @@ package types
 import (
 	"bytes"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/rlp"
 	"github.com/holiman/uint256"
 )
 

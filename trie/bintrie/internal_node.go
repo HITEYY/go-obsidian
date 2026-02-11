@@ -21,7 +21,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/HITEYY/go-obsidian/common"
 )
 
 func keyToPath(depth int, key []byte) ([]byte, error) {

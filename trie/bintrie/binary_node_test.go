@@ -20,7 +20,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/HITEYY/go-obsidian/common"
 )
 
 // TestSerializeDeserializeInternalNode tests serialization and deserialization of InternalNode

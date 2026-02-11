@@ -22,16 +22,16 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/math"
-	"github.com/ethereum/go-ethereum/consensus/misc/eip4844"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/core/vm"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/common/math"
+	"github.com/HITEYY/go-obsidian/consensus/misc/eip4844"
+	"github.com/HITEYY/go-obsidian/core"
+	"github.com/HITEYY/go-obsidian/core/types"
+	"github.com/HITEYY/go-obsidian/core/vm"
 
 	// Force-load native and js packages, to trigger registration
-	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
-	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
+	_ "github.com/HITEYY/go-obsidian/eth/tracers/js"
+	_ "github.com/HITEYY/go-obsidian/eth/tracers/native"
 )
 
 // camel converts a snake cased input string into a camel cased output.

@@ -21,12 +21,12 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/ethereum/go-ethereum/cmd/devp2p/internal/ethtest"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/p2p"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/p2p/rlpx"
-	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/HITEYY/go-obsidian/cmd/devp2p/internal/ethtest"
+	"github.com/HITEYY/go-obsidian/crypto"
+	"github.com/HITEYY/go-obsidian/p2p"
+	"github.com/HITEYY/go-obsidian/p2p/enode"
+	"github.com/HITEYY/go-obsidian/p2p/rlpx"
+	"github.com/HITEYY/go-obsidian/rlp"
 	"github.com/urfave/cli/v2"
 )
 

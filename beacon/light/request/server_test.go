@@ -3,7 +3,7 @@ package request
 import (
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common/mclock"
+	"github.com/HITEYY/go-obsidian/common/mclock"
 )
 
 const (

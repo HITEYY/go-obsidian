@@ -21,8 +21,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/cmd/utils"
-	"github.com/ethereum/go-ethereum/console"
+	"github.com/HITEYY/go-obsidian/cmd/utils"
+	"github.com/HITEYY/go-obsidian/console"
 	"github.com/urfave/cli/v2"
 )
 

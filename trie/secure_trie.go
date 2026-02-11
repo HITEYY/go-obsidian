@@ -17,12 +17,12 @@
 package trie
 
 import (
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/ethereum/go-ethereum/trie/trienode"
-	"github.com/ethereum/go-ethereum/triedb/database"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/core/types"
+	"github.com/HITEYY/go-obsidian/crypto"
+	"github.com/HITEYY/go-obsidian/rlp"
+	"github.com/HITEYY/go-obsidian/trie/trienode"
+	"github.com/HITEYY/go-obsidian/triedb/database"
 )
 
 // preimageStore wraps the methods of a backing store for reading and writing

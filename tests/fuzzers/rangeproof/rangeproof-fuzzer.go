@@ -23,11 +23,11 @@ import (
 	"io"
 	"slices"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/rawdb"
-	"github.com/ethereum/go-ethereum/ethdb/memorydb"
-	"github.com/ethereum/go-ethereum/trie"
-	"github.com/ethereum/go-ethereum/triedb"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/core/rawdb"
+	"github.com/HITEYY/go-obsidian/ethdb/memorydb"
+	"github.com/HITEYY/go-obsidian/trie"
+	"github.com/HITEYY/go-obsidian/triedb"
 )
 
 type kv struct {

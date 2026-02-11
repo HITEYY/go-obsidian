@@ -17,9 +17,9 @@
 package trie
 
 import (
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/triedb/database"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/core/types"
+	"github.com/HITEYY/go-obsidian/triedb/database"
 )
 
 // Reader is a wrapper of the underlying database reader. It's not safe

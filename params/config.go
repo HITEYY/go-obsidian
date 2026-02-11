@@ -22,8 +22,8 @@ import (
 	"math"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/params/forks"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/params/forks"
 )
 
 // Genesis hashes to enforce below configs on.

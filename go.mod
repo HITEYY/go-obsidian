@@ -1,4 +1,4 @@
-module github.com/ethereum/go-ethereum
+module github.com/HITEYY/go-obsidian
 
 go 1.24.0
 

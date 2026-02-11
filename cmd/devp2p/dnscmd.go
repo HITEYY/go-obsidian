@@ -25,11 +25,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/console/prompt"
-	"github.com/ethereum/go-ethereum/p2p/dnsdisc"
-	"github.com/ethereum/go-ethereum/p2p/enode"
+	"github.com/HITEYY/go-obsidian/accounts/keystore"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/console/prompt"
+	"github.com/HITEYY/go-obsidian/p2p/dnsdisc"
+	"github.com/HITEYY/go-obsidian/p2p/enode"
 	"github.com/urfave/cli/v2"
 )
 

@@ -24,7 +24,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/ethdb"
+	"github.com/HITEYY/go-obsidian/ethdb"
 )
 
 // TestDatabaseSuite runs a suite of tests against a KeyValueStore database

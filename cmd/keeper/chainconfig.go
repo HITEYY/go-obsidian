@@ -19,7 +19,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/HITEYY/go-obsidian/params"
 )
 
 // getChainConfig returns the appropriate chain configuration based on the chainID.

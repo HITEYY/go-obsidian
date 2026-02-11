@@ -21,10 +21,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ethereum/go-ethereum/beacon/params"
-	"github.com/ethereum/go-ethereum/beacon/types"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/log"
+	"github.com/HITEYY/go-obsidian/beacon/params"
+	"github.com/HITEYY/go-obsidian/beacon/types"
+	"github.com/HITEYY/go-obsidian/common"
+	"github.com/HITEYY/go-obsidian/log"
 )
 
 // HeadTracker keeps track of the latest validated head and the "prefetch" head

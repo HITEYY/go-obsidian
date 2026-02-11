@@ -34,11 +34,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/internal/testlog"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/p2p/discover/v4wire"
-	"github.com/ethereum/go-ethereum/p2p/enode"
-	"github.com/ethereum/go-ethereum/p2p/enr"
+	"github.com/HITEYY/go-obsidian/internal/testlog"
+	"github.com/HITEYY/go-obsidian/log"
+	"github.com/HITEYY/go-obsidian/p2p/discover/v4wire"
+	"github.com/HITEYY/go-obsidian/p2p/enode"
+	"github.com/HITEYY/go-obsidian/p2p/enr"
 )
 
 // shared test variables
