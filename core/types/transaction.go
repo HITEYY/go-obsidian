@@ -51,6 +51,7 @@ const (
 	BlobTxType         = 0x03
 	SetCodeTxType      = 0x04
 	ConfidentialTxType = 0x05 // ZK Confidential Transaction
+	AAUserOpTxType     = 0x06 // Native Account Abstraction (EIP-4337 style)
 )
 
 // Transaction is an Ethereum transaction.
@@ -215,6 +216,8 @@ func (tx *Transaction) decodeTyped(b []byte) (TxData, error) {
 		inner = new(SetCodeTx)
 	case ConfidentialTxType:
 		inner = new(ConfidentialTx)
+	case AAUserOpTxType:
+		inner = new(AAUserOpTx)
 	default:
 		return nil, ErrTxTypeNotSupported
 	}
