@@ -40,6 +40,16 @@ import (
 var testKey, _ = crypto.HexToECDSA("b71c71a67e1177ad4e901695e1b4b9ee17ae16c6668d313eac2f96dbcda3f291")
 var testAddr = crypto.PubkeyToAddress(testKey.PublicKey)
 
+// testDeployTimeout is the maximum time to wait for a deployment transaction to be mined.
+const testDeployTimeout = 30 * time.Second
+
+// testCtx returns a context with a timeout suitable for test operations.
+func testCtx(t *testing.T) context.Context {
+	ctx, cancel := context.WithTimeout(context.Background(), testDeployTimeout)
+	t.Cleanup(cancel)
+	return ctx
+}
+
 func testSetup() (*backends.SimulatedBackend, error) {
 	backend := simulated.NewBackend(
 		types.GenesisAlloc{
@@ -97,8 +107,9 @@ func TestDeploymentLibraries(t *testing.T) {
 	if len(res.Addresses) != 5 {
 		t.Fatalf("deployment should have generated 5 addresses.  got %d", len(res.Addresses))
 	}
+	ctx := testCtx(t)
 	for _, tx := range res.Txs {
-		_, err = bind.WaitDeployed(context.Background(), bindBackend, tx.Hash())
+		_, err = bind.WaitDeployed(ctx, bindBackend, tx.Hash())
 		if err != nil {
 			t.Fatalf("error deploying library: %+v", err)
 		}
@@ -106,7 +117,7 @@ func TestDeploymentLibraries(t *testing.T) {
 
 	doInput := c.PackDo(big.NewInt(1))
 	contractAddr := res.Addresses[nested_libraries.C1MetaData.ID]
-	callOpts := &bind.CallOpts{From: common.Address{}, Context: context.Background()}
+	callOpts := &bind.CallOpts{From: common.Address{}, Context: ctx}
 	instance := c.Instance(bindBackend, contractAddr)
 	internalCallCount, err := bind.Call(instance, callOpts, doInput, c.UnpackDo)
 	if err != nil {
@@ -139,8 +150,9 @@ func TestDeploymentWithOverrides(t *testing.T) {
 	if len(res.Addresses) != 4 {
 		t.Fatalf("deployment should have generated 4 addresses.  got %d", len(res.Addresses))
 	}
+	ctx := testCtx(t)
 	for _, tx := range res.Txs {
-		_, err = bind.WaitDeployed(context.Background(), bindBackend, tx.Hash())
+		_, err = bind.WaitDeployed(ctx, bindBackend, tx.Hash())
 		if err != nil {
 			t.Fatalf("error deploying library: %+v", err)
 		}
@@ -166,7 +178,7 @@ func TestDeploymentWithOverrides(t *testing.T) {
 		t.Fatalf("deployment should have generated 1 address.  got %d", len(res.Addresses))
 	}
 	for _, tx := range res.Txs {
-		_, err = bind.WaitDeployed(context.Background(), bindBackend, tx.Hash())
+		_, err = bind.WaitDeployed(ctx, bindBackend, tx.Hash())
 		if err != nil {
 			t.Fatalf("error deploying library: %+v", err)
 		}
@@ -222,7 +234,8 @@ func TestEvents(t *testing.T) {
 	}
 
 	backend.Commit()
-	if _, err := bind.WaitDeployed(context.Background(), backend, res.Txs[events.CMetaData.ID].Hash()); err != nil {
+	ctx := testCtx(t)
+	if _, err := bind.WaitDeployed(ctx, backend, res.Txs[events.CMetaData.ID].Hash()); err != nil {
 		t.Fatalf("WaitDeployed failed %v", err)
 	}
 
@@ -231,7 +244,7 @@ func TestEvents(t *testing.T) {
 
 	newCBasic1Ch := make(chan *events.CBasic1)
 	newCBasic2Ch := make(chan *events.CBasic2)
-	watchOpts := &bind.WatchOpts{}
+	watchOpts := &bind.WatchOpts{Context: ctx}
 	sub1, err := bind.WatchEvents(instance, watchOpts, c.UnpackBasic1Event, newCBasic1Ch)
 	if err != nil {
 		t.Fatalf("WatchEvents returned error: %v", err)
@@ -249,7 +262,7 @@ func TestEvents(t *testing.T) {
 		t.Fatalf("failed to send transaction: %v", err)
 	}
 	backend.Commit()
-	if _, err := bind.WaitMined(context.Background(), backend, tx.Hash()); err != nil {
+	if _, err := bind.WaitMined(ctx, backend, tx.Hash()); err != nil {
 		t.Fatalf("error waiting for tx to be mined: %v", err)
 	}
 
@@ -281,7 +294,7 @@ done:
 
 	filterOpts := &bind.FilterOpts{
 		Start:   0,
-		Context: context.Background(),
+		Context: ctx,
 	}
 	it, err := bind.FilterEvents(instance, filterOpts, c.UnpackBasic1Event)
 	if err != nil {
@@ -329,14 +342,15 @@ func TestErrors(t *testing.T) {
 	}
 
 	backend.Commit()
-	if _, err := bind.WaitDeployed(context.Background(), backend, res.Txs[solc_errors.CMetaData.ID].Hash()); err != nil {
+	ctx := testCtx(t)
+	if _, err := bind.WaitDeployed(ctx, backend, res.Txs[solc_errors.CMetaData.ID].Hash()); err != nil {
 		t.Fatalf("WaitDeployed failed %v", err)
 	}
 
 	c := solc_errors.NewC()
 	instance := c.Instance(backend, res.Addresses[solc_errors.CMetaData.ID])
 	packedInput := c.PackFoo()
-	opts := &bind.CallOpts{From: res.Addresses[solc_errors.CMetaData.ID]}
+	opts := &bind.CallOpts{From: res.Addresses[solc_errors.CMetaData.ID], Context: ctx}
 	_, err = bind.Call[struct{}](instance, opts, packedInput, nil)
 	if err == nil {
 		t.Fatalf("expected call to fail")
