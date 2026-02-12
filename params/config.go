@@ -32,6 +32,7 @@ var (
 	HoleskyGenesisHash = common.HexToHash("0xb5f7f912443c940f21fd611f12828d75b534364ed9e95ca4e307729a4661bde4")
 	SepoliaGenesisHash = common.HexToHash("0x25a5cc106eea7138acab33231d7160d69cb777ee0c2c553fcddf5138993e6dd9")
 	HoodiGenesisHash   = common.HexToHash("0x7b22ad0ef0cc2fee8e0a2e3f9199e10a029b35989b98842c5a09ef14c090489e")
+	ObsidianGenesisHash = HoodiGenesisHash
 )
 
 func newUint64(val uint64) *uint64 { return &val }
@@ -146,8 +147,8 @@ var (
 			BPO2:   DefaultBPO2BlobConfig,
 		},
 	}
-	// HoodiChainConfig contains the chain parameters to run a node on the Hoodi test network.
-	HoodiChainConfig = &ChainConfig{
+	// ObsidianChainConfig contains the chain parameters to run a node on the Obsidian network.
+	ObsidianChainConfig = &ChainConfig{
 		ChainID:                 big.NewInt(1719),
 		HomesteadBlock:          big.NewInt(0),
 		DAOForkBlock:            nil,
@@ -182,6 +183,8 @@ var (
 			BPO2:   DefaultBPO2BlobConfig,
 		},
 	}
+	// HoodiChainConfig contains the chain parameters to run a node on the Hoodi test network.
+	HoodiChainConfig = ObsidianChainConfig
 	// AllEthashProtocolChanges contains every protocol change (EIPs) introduced
 	// and accepted by the Ethereum core developers into the Ethash consensus.
 	AllEthashProtocolChanges = &ChainConfig{
@@ -450,10 +453,10 @@ var (
 
 // NetworkNames are user friendly names to use in the chain spec banner.
 var NetworkNames = map[string]string{
-	MainnetChainConfig.ChainID.String(): "mainnet",
-	SepoliaChainConfig.ChainID.String(): "sepolia",
-	HoleskyChainConfig.ChainID.String(): "holesky",
-	HoodiChainConfig.ChainID.String():   "hoodi",
+	MainnetChainConfig.ChainID.String():  "mainnet",
+	SepoliaChainConfig.ChainID.String():  "sepolia",
+	HoleskyChainConfig.ChainID.String():  "holesky",
+	ObsidianChainConfig.ChainID.String(): "Obsidian",
 }
 
 // ChainConfig is the core config which determines the blockchain settings.

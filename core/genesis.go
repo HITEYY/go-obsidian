@@ -427,8 +427,8 @@ func LoadChainConfig(db ethdb.Database, genesis *Genesis) (cfg *params.ChainConf
 		return genesis.Config, ghash, nil
 	}
 	// There is no stored chain config and no new config provided,
-	// In this case the default chain config(mainnet) will be used
-	return params.MainnetChainConfig, params.MainnetGenesisHash, nil
+	// In this case the default chain config(Obsidian) will be used
+	return params.ObsidianChainConfig, params.ObsidianGenesisHash, nil
 }
 
 // chainConfigOrDefault retrieves the attached chain configuration. If the genesis
@@ -438,14 +438,14 @@ func (g *Genesis) chainConfigOrDefault(ghash common.Hash, stored *params.ChainCo
 	switch {
 	case g != nil:
 		return g.Config
+	case ghash == params.ObsidianGenesisHash:
+		return params.ObsidianChainConfig
 	case ghash == params.MainnetGenesisHash:
 		return params.MainnetChainConfig
 	case ghash == params.HoleskyGenesisHash:
 		return params.HoleskyChainConfig
 	case ghash == params.SepoliaGenesisHash:
 		return params.SepoliaChainConfig
-	case ghash == params.HoodiGenesisHash:
-		return params.HoodiChainConfig
 	default:
 		return stored
 	}

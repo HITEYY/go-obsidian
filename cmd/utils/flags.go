@@ -158,9 +158,10 @@ var (
 	}
 	HoodiFlag = &cli.BoolFlag{
 		Name:     "hoodi",
-		Usage:    "Hoodi network: pre-configured proof-of-stake test network",
+		Usage:    "Obsidian network: pre-configured proof-of-stake test network",
 		Category: flags.EthCategory,
 	}
+	ObsidianFlag = HoodiFlag
 	// Dev mode
 	DeveloperFlag = &cli.BoolFlag{
 		Name:     "dev",
