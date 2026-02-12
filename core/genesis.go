@@ -216,7 +216,7 @@ func getGenesisState(db ethdb.Database, blockhash common.Hash) (alloc types.Gene
 	var genesis *Genesis
 	switch blockhash {
 	case params.MainnetGenesisHash:
-		genesis = DefaultGenesisBlock()
+		genesis = DefaultMainnetGenesisBlock()
 	case params.SepoliaGenesisHash:
 		genesis = DefaultSepoliaGenesisBlock()
 	case params.HoleskyGenesisHash:
@@ -311,7 +311,7 @@ func SetupGenesisBlockWithOverride(db ethdb.Database, triedb *triedb.Database, g
 	ghash := rawdb.ReadCanonicalHash(db, 0)
 	if (ghash == common.Hash{}) {
 		if genesis == nil {
-			log.Info("Writing default main-net genesis block")
+			log.Info("Writing default Obsidian genesis block")
 			genesis = DefaultGenesisBlock()
 		} else {
 			log.Info("Writing custom genesis block")
@@ -336,7 +336,7 @@ func SetupGenesisBlockWithOverride(db ethdb.Database, triedb *triedb.Database, g
 		// networks must explicitly specify the genesis in the config file, mainnet
 		// genesis will be used as default and the initialization will always fail.
 		if genesis == nil {
-			log.Info("Writing default main-net genesis block")
+			log.Info("Writing default Obsidian genesis block")
 			genesis = DefaultGenesisBlock()
 		} else {
 			log.Info("Writing custom genesis block")
@@ -608,8 +608,13 @@ func EnableVerkleAtGenesis(db ethdb.Database, genesis *Genesis) (bool, error) {
 	return false, nil
 }
 
-// DefaultGenesisBlock returns the Ethereum main net genesis block.
+// DefaultGenesisBlock returns the Obsidian network genesis block.
 func DefaultGenesisBlock() *Genesis {
+	return DefaultHoodiGenesisBlock()
+}
+
+// DefaultMainnetGenesisBlock returns the Ethereum main net genesis block.
+func DefaultMainnetGenesisBlock() *Genesis {
 	return &Genesis{
 		Config:     params.MainnetChainConfig,
 		Nonce:      66,
