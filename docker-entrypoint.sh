@@ -40,4 +40,24 @@ for arg in "$@"; do
     esac
 done
 
-exec geth "$@"
+# Default: bind HTTP and WS RPC to all interfaces so they are reachable
+# from outside the container.  Users can still override via explicit flags.
+HTTP_ADDR_SET=false
+WS_ADDR_SET=false
+for arg in "$@"; do
+    case "$arg" in
+        --http.addr|--http.addr=*) HTTP_ADDR_SET=true ;;
+        --ws.addr|--ws.addr=*)     WS_ADDR_SET=true ;;
+    esac
+done
+
+EXTRA_FLAGS=""
+if [ "$HTTP_ADDR_SET" = false ]; then
+    EXTRA_FLAGS="$EXTRA_FLAGS --http.addr 0.0.0.0"
+fi
+if [ "$WS_ADDR_SET" = false ]; then
+    EXTRA_FLAGS="$EXTRA_FLAGS --ws.addr 0.0.0.0"
+fi
+
+# shellcheck disable=SC2086
+exec geth $EXTRA_FLAGS "$@"
