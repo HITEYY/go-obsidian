@@ -44,10 +44,16 @@ done
 # from outside the container.  Users can still override via explicit flags.
 HTTP_ADDR_SET=false
 WS_ADDR_SET=false
+HTTP_VHOSTS_SET=false
+HTTP_CORSDOMAIN_SET=false
+WS_ORIGINS_SET=false
 for arg in "$@"; do
     case "$arg" in
-        --http.addr|--http.addr=*) HTTP_ADDR_SET=true ;;
-        --ws.addr|--ws.addr=*)     WS_ADDR_SET=true ;;
+        --http.addr|--http.addr=*)               HTTP_ADDR_SET=true ;;
+        --ws.addr|--ws.addr=*)                   WS_ADDR_SET=true ;;
+        --http.vhosts|--http.vhosts=*)           HTTP_VHOSTS_SET=true ;;
+        --http.corsdomain|--http.corsdomain=*)   HTTP_CORSDOMAIN_SET=true ;;
+        --ws.origins|--ws.origins=*)             WS_ORIGINS_SET=true ;;
     esac
 done
 
@@ -57,6 +63,15 @@ if [ "$HTTP_ADDR_SET" = false ]; then
 fi
 if [ "$WS_ADDR_SET" = false ]; then
     EXTRA_FLAGS="$EXTRA_FLAGS --ws.addr 0.0.0.0"
+fi
+if [ "$HTTP_VHOSTS_SET" = false ]; then
+    EXTRA_FLAGS="$EXTRA_FLAGS --http.vhosts *"
+fi
+if [ "$HTTP_CORSDOMAIN_SET" = false ]; then
+    EXTRA_FLAGS="$EXTRA_FLAGS --http.corsdomain *"
+fi
+if [ "$WS_ORIGINS_SET" = false ]; then
+    EXTRA_FLAGS="$EXTRA_FLAGS --ws.origins *"
 fi
 
 # shellcheck disable=SC2086
