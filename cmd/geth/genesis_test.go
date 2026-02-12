@@ -186,9 +186,9 @@ func TestCustomBackend(t *testing.T) {
 		{ // Reject invalid backend choice
 			initArgs:   []string{"--db.engine", "mssql"},
 			initExpect: `Fatal: Invalid choice for db.engine 'mssql', allowed 'leveldb' or 'pebble'`,
-			// Since the init fails, this will return the (default) mainnet genesis
+			// Since the init fails, this will return the (default) Obsidian genesis
 			// block nonce
-			execExpect: `0x0000000000000042`,
+			execExpect: `0x0000000000001234`,
 		},
 	} {
 		if err := testfunc(t, tt); err != nil {

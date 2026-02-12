@@ -72,17 +72,17 @@ func testSetupGenesis(t *testing.T, scheme string) {
 			fn: func(db ethdb.Database) (*params.ChainConfig, common.Hash, *params.ConfigCompatError, error) {
 				return SetupGenesisBlock(db, triedb.NewDatabase(db, newDbConfig(scheme)), nil)
 			},
-			wantHash:   params.MainnetGenesisHash,
-			wantConfig: params.MainnetChainConfig,
+			wantHash:   params.HoodiGenesisHash,
+			wantConfig: params.HoodiChainConfig,
 		},
 		{
-			name: "mainnet block in DB, genesis == nil",
+			name: "default block in DB, genesis == nil",
 			fn: func(db ethdb.Database) (*params.ChainConfig, common.Hash, *params.ConfigCompatError, error) {
 				DefaultGenesisBlock().MustCommit(db, triedb.NewDatabase(db, newDbConfig(scheme)))
 				return SetupGenesisBlock(db, triedb.NewDatabase(db, newDbConfig(scheme)), nil)
 			},
-			wantHash:   params.MainnetGenesisHash,
-			wantConfig: params.MainnetChainConfig,
+			wantHash:   params.HoodiGenesisHash,
+			wantConfig: params.HoodiChainConfig,
 		},
 		{
 			name: "custom block in DB, genesis == nil",
@@ -184,7 +184,7 @@ func TestGenesisHashes(t *testing.T) {
 		genesis *Genesis
 		want    common.Hash
 	}{
-		{DefaultGenesisBlock(), params.MainnetGenesisHash},
+		{DefaultGenesisBlock(), params.HoodiGenesisHash},
 		{DefaultSepoliaGenesisBlock(), params.SepoliaGenesisHash},
 		{DefaultHoleskyGenesisBlock(), params.HoleskyGenesisHash},
 		{DefaultHoodiGenesisBlock(), params.HoodiGenesisHash},

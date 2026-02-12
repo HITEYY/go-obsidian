@@ -46,7 +46,7 @@ func TestCreation(t *testing.T) {
 		// Mainnet test cases
 		{
 			params.MainnetChainConfig,
-			core.DefaultGenesisBlock().ToBlock(),
+			core.DefaultMainnetGenesisBlock().ToBlock(),
 			[]testcase{
 				{0, 0, ID{Hash: checksumToBytes(0xfc64ec04), Next: 1150000}},                    // Unsynced
 				{1149999, 0, ID{Hash: checksumToBytes(0xfc64ec04), Next: 1150000}},              // Last Frontier block
@@ -380,7 +380,7 @@ func TestValidation(t *testing.T) {
 		// fork) at timestamp 1668000000, before Cancun. Local is incompatible.
 		{params.MainnetChainConfig, 20999999, 1699999999, ID{Hash: checksumToBytes(0x71147644), Next: 1700000000}, ErrLocalIncompatibleOrStale},
 	}
-	genesis := core.DefaultGenesisBlock().ToBlock()
+	genesis := core.DefaultMainnetGenesisBlock().ToBlock()
 	for i, tt := range tests {
 		filter := newFilter(tt.config, genesis, func() (uint64, uint64) { return tt.head, tt.time })
 		if err := filter(tt.id); err != tt.err {
