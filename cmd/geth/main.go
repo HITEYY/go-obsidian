@@ -325,7 +325,12 @@ func prepare(ctx *cli.Context) {
 // blocking mode, waiting for it to be shut down.
 func geth(ctx *cli.Context) error {
 	if args := ctx.Args().Slice(); len(args) > 0 {
-		return fmt.Errorf("invalid command: %q", args[0])
+		if args[0] == "dev" {
+			log.Warn("The 'dev' command is deprecated, use the '--dev' flag instead")
+			ctx.Set(utils.DeveloperFlag.Name, "true")
+		} else {
+			return fmt.Errorf("invalid command: %q", args[0])
+		}
 	}
 
 	prepare(ctx)
