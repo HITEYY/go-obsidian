@@ -455,6 +455,15 @@ func (tx *Transaction) BlobTxSidecar() *BlobTxSidecar {
 	return nil
 }
 
+// AAUserOp returns the AA user operation transaction data, nil otherwise.
+func (tx *Transaction) AAUserOp() *AAUserOpTx {
+	aatx, ok := tx.inner.(*AAUserOpTx)
+	if !ok {
+		return nil
+	}
+	return aatx.copy().(*AAUserOpTx)
+}
+
 // BlobGasFeeCapCmp compares the blob fee cap of two transactions.
 func (tx *Transaction) BlobGasFeeCapCmp(other *Transaction) int {
 	return tx.BlobGasFeeCap().Cmp(other.BlobGasFeeCap())

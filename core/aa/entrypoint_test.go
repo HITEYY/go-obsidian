@@ -3,6 +3,7 @@
 package aa
 
 import (
+	"bytes"
 	"math/big"
 	"testing"
 
@@ -234,5 +235,49 @@ func TestGetDeposit(t *testing.T) {
 
 	if err := ep.WithdrawDeposit(addr, big.NewInt(9999)); err == nil {
 		t.Error("expected error for over-withdrawal")
+	}
+}
+
+func TestEntryPointOutOfGasDoesNotOverpayBeneficiary(t *testing.T) {
+	statedb := newMockStateDB()
+	sender := common.HexToAddress("0x1111111111111111111111111111111111111111")
+	beneficiary := common.HexToAddress("0x2222222222222222222222222222222222222222")
+
+	statedb.balances[sender] = big.NewInt(1_000_000)
+	statedb.codes[sender] = []byte{0x60, 0x00}
+
+	ep := NewEntryPoint()
+
+	op := &UserOperation{
+		Sender:               sender,
+		Nonce:                big.NewInt(0),
+		CallData:             bytes.Repeat([]byte{0x01}, 1000), // estimated gas > call gas limit
+		CallGasLimit:         1,
+		VerificationGasLimit: 0,
+		PreVerificationGas:   0,
+		MaxFeePerGas:         big.NewInt(1),
+		MaxPriorityFeePerGas: big.NewInt(1),
+		Signature:            []byte{0xff},
+	}
+
+	receipts, err := ep.HandleOps(statedb, []*UserOperation{op}, beneficiary)
+	if err != nil {
+		t.Fatalf("HandleOps failed: %v", err)
+	}
+	if len(receipts) != 1 {
+		t.Fatalf("expected 1 receipt, got %d", len(receipts))
+	}
+	receipt := receipts[0]
+	if receipt.Success {
+		t.Fatal("expected failure due to out-of-gas execution")
+	}
+	if receipt.ActualGasUsed != 1 {
+		t.Fatalf("expected gasUsed=1, got %d", receipt.ActualGasUsed)
+	}
+	if receipt.ActualGasCost.Cmp(big.NewInt(1)) != 0 {
+		t.Fatalf("expected gasCost=1, got %s", receipt.ActualGasCost)
+	}
+	if got := statedb.GetBalance(beneficiary); got.Cmp(big.NewInt(1)) != 0 {
+		t.Fatalf("beneficiary overpaid: have %s want 1", got)
 	}
 }

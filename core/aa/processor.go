@@ -13,13 +13,14 @@ import (
 	"github.com/HITEYY/go-obsidian/common"
 	"github.com/HITEYY/go-obsidian/core/types"
 	"github.com/HITEYY/go-obsidian/log"
+	"github.com/holiman/uint256"
 )
 
 // Processor handles the integration of AA transactions into block processing.
 type Processor struct {
-	entryPoint  *EntryPoint
-	paymasters  map[common.Address]*NativePaymaster
-	chainID     *big.Int
+	entryPoint *EntryPoint
+	paymasters map[common.Address]*NativePaymaster
+	chainID    *big.Int
 }
 
 // NewProcessor creates a new AA transaction processor.
@@ -113,28 +114,22 @@ func extractAAUserOpTx(tx *types.Transaction) (*types.AAUserOpTx, bool) {
 	if tx.Type() != types.AAUserOpTxType {
 		return nil, false
 	}
-	// Access inner via the public Transaction methods
-	inner := &types.AAUserOpTx{
-		Sender:   *tx.To(), // EntryPoint address is stored in To
-		CallData: tx.Data(),
-	}
-	// In practice, the inner type would be directly accessible
-	// For now, reconstruct from Transaction fields
-	return inner, true
+	inner := tx.AAUserOp()
+	return inner, inner != nil
 }
 
 // txToUserOp converts an AAUserOpTx to a UserOperation.
 func txToUserOp(aaTx *types.AAUserOpTx) *UserOperation {
 	op := &UserOperation{
 		Sender:               aaTx.Sender,
-		Nonce:                aaTx.UserOpNonce.ToBig(),
+		Nonce:                uint256ToBig(aaTx.UserOpNonce),
 		InitCode:             aaTx.InitCode,
 		CallData:             aaTx.CallData,
 		CallGasLimit:         aaTx.CallGasLimit,
 		VerificationGasLimit: aaTx.VerificationGasLimit,
 		PreVerificationGas:   aaTx.PreVerificationGas,
-		MaxFeePerGas:         aaTx.MaxFeePerGas.ToBig(),
-		MaxPriorityFeePerGas: aaTx.MaxPriorityFeePerGas.ToBig(),
+		MaxFeePerGas:         uint256ToBig(aaTx.MaxFeePerGas),
+		MaxPriorityFeePerGas: uint256ToBig(aaTx.MaxPriorityFeePerGas),
 		Signature:            aaTx.UserOpSignature,
 	}
 
@@ -147,4 +142,11 @@ func txToUserOp(aaTx *types.AAUserOpTx) *UserOperation {
 	}
 
 	return op
+}
+
+func uint256ToBig(v *uint256.Int) *big.Int {
+	if v == nil {
+		return new(big.Int)
+	}
+	return v.ToBig()
 }

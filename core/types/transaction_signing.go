@@ -230,6 +230,7 @@ func newModernSigner(chainID *big.Int, fork forks.Fork) Signer {
 	}
 	if fork >= forks.Prague {
 		s.txtypes.set(SetCodeTxType)
+		s.txtypes.set(AAUserOpTxType)
 	}
 	return s
 }
@@ -288,6 +289,7 @@ func (s *modernSigner) SignatureValues(tx *Transaction, sig []byte) (R, S, V *bi
 }
 
 // NewPragueSigner returns a signer that accepts
+// - Native AA user operation transactions
 // - EIP-7702 set code transactions
 // - EIP-4844 blob transactions
 // - EIP-1559 dynamic fee transactions

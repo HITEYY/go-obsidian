@@ -57,22 +57,20 @@ for arg in "$@"; do
     esac
 done
 
-EXTRA_FLAGS=""
 if [ "$HTTP_ADDR_SET" = false ]; then
-    EXTRA_FLAGS="$EXTRA_FLAGS --http.addr 0.0.0.0"
+    set -- --http.addr 0.0.0.0 "$@"
 fi
 if [ "$WS_ADDR_SET" = false ]; then
-    EXTRA_FLAGS="$EXTRA_FLAGS --ws.addr 0.0.0.0"
+    set -- --ws.addr 0.0.0.0 "$@"
 fi
 if [ "$HTTP_VHOSTS_SET" = false ]; then
-    EXTRA_FLAGS="$EXTRA_FLAGS --http.vhosts *"
+    set -- --http.vhosts "*" "$@"
 fi
 if [ "$HTTP_CORSDOMAIN_SET" = false ]; then
-    EXTRA_FLAGS="$EXTRA_FLAGS --http.corsdomain *"
+    set -- --http.corsdomain "*" "$@"
 fi
 if [ "$WS_ORIGINS_SET" = false ]; then
-    EXTRA_FLAGS="$EXTRA_FLAGS --ws.origins *"
+    set -- --ws.origins "*" "$@"
 fi
 
-# shellcheck disable=SC2086
-exec geth $EXTRA_FLAGS "$@"
+exec geth "$@"

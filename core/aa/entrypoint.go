@@ -59,9 +59,9 @@ type PaymasterValidator interface {
 type PostOpMode uint8
 
 const (
-	PostOpModeOpSucceeded PostOpMode = iota // UserOp succeeded
-	PostOpModeOpReverted                     // UserOp reverted
-	PostOpModePostOpReverted                 // PostOp itself reverted (2nd call)
+	PostOpModeOpSucceeded    PostOpMode = iota // UserOp succeeded
+	PostOpModeOpReverted                       // UserOp reverted
+	PostOpModePostOpReverted                   // PostOp itself reverted (2nd call)
 )
 
 // EntryPoint is the native entrypoint processor for Account Abstraction.
@@ -156,6 +156,9 @@ func (ep *EntryPoint) HandleOps(statedb StateDB, ops []*UserOperation, beneficia
 
 // handleSingleOp processes one UserOperation through the full lifecycle.
 func (ep *EntryPoint) handleSingleOp(statedb StateDB, op *UserOperation, beneficiary common.Address) (*UserOpReceipt, error) {
+	if op == nil {
+		return nil, ErrInvalidUserOp
+	}
 	userOpHash := ep.getUserOpHash(op)
 
 	// Phase 1: Validation
@@ -193,18 +196,24 @@ func (ep *EntryPoint) handleSingleOp(statedb StateDB, op *UserOperation, benefic
 	if len(op.CallData) > 0 {
 		// Simulate execution gas consumption
 		execGas := ep.estimateCallGas(op)
+		execGasUsed := execGas
 		if execGas > op.CallGasLimit {
 			execSuccess = false
 			execReason = "out of gas during execution"
+			// Never charge beyond the user-defined call gas limit.
+			execGasUsed = op.CallGasLimit
 		}
-		gasUsed += execGas
+		gasUsed += execGasUsed
 	}
 
 	// Phase 5: Calculate actual gas cost
 	actualGasCost := new(big.Int).Mul(
 		new(big.Int).SetUint64(gasUsed),
-		op.MaxFeePerGas,
+		safeBig(op.MaxFeePerGas),
 	)
+	if actualGasCost.Cmp(requiredPrefund) > 0 {
+		actualGasCost = new(big.Int).Set(requiredPrefund)
+	}
 
 	// Phase 6: Refund unused gas
 	refund := new(big.Int).Sub(requiredPrefund, actualGasCost)
@@ -253,6 +262,13 @@ func (ep *EntryPoint) handleSingleOp(statedb StateDB, op *UserOperation, benefic
 
 // validateOp performs validation of a UserOperation.
 func (ep *EntryPoint) validateOp(statedb StateDB, op *UserOperation, userOpHash common.Hash) (*PaymasterContext, error) {
+	if op == nil || op.Nonce == nil || op.MaxFeePerGas == nil || op.MaxPriorityFeePerGas == nil {
+		return nil, ErrInvalidUserOp
+	}
+	if op.MaxFeePerGas.Sign() <= 0 || op.MaxPriorityFeePerGas.Sign() < 0 {
+		return nil, ErrInvalidUserOp
+	}
+
 	// 1. Verify sender account exists (or deploy via initCode)
 	if !statedb.Exist(op.Sender) || len(statedb.GetCode(op.Sender)) == 0 {
 		if len(op.InitCode) == 0 {
@@ -317,6 +333,9 @@ func (ep *EntryPoint) validateOp(statedb StateDB, op *UserOperation, userOpHash 
 
 // validateNonce checks UserOp nonce against stored nonce.
 func (ep *EntryPoint) validateNonce(statedb StateDB, op *UserOperation) error {
+	if op.Nonce == nil {
+		return ErrNonceInvalid
+	}
 	// EIP-4337 uses a 2D nonce: key (192 bits) + sequence (64 bits)
 	// For simplicity, we use the lower 64 bits as sequence
 	expected := statedb.GetNonce(op.Sender)
@@ -335,10 +354,13 @@ func (ep *EntryPoint) incrementNonce(statedb StateDB, op *UserOperation) {
 
 // calculateRequiredPrefund computes the max gas cost for a UserOp.
 func (ep *EntryPoint) calculateRequiredPrefund(op *UserOperation) *big.Int {
+	if op == nil {
+		return new(big.Int)
+	}
 	totalGas := op.TotalGasLimit()
 	return new(big.Int).Mul(
 		new(big.Int).SetUint64(totalGas),
-		op.MaxFeePerGas,
+		safeBig(op.MaxFeePerGas),
 	)
 }
 
@@ -358,17 +380,20 @@ func (ep *EntryPoint) estimateCallGas(op *UserOperation) uint64 {
 
 // getUserOpHash computes the hash of a UserOperation.
 func (ep *EntryPoint) getUserOpHash(op *UserOperation) common.Hash {
+	if op == nil {
+		return common.Hash{}
+	}
 	// Pack: sender + nonce + hashInitCode + hashCallData + gas limits + paymaster info
 	packed := make([]byte, 0, 256)
 	packed = append(packed, op.Sender.Bytes()...)
-	packed = append(packed, common.BigToHash(op.Nonce).Bytes()...)
+	packed = append(packed, common.BigToHash(safeBig(op.Nonce)).Bytes()...)
 	packed = append(packed, crypto.Keccak256(op.InitCode)...)
 	packed = append(packed, crypto.Keccak256(op.CallData)...)
 	packed = append(packed, common.BigToHash(new(big.Int).SetUint64(op.CallGasLimit)).Bytes()...)
 	packed = append(packed, common.BigToHash(new(big.Int).SetUint64(op.VerificationGasLimit)).Bytes()...)
 	packed = append(packed, common.BigToHash(new(big.Int).SetUint64(op.PreVerificationGas)).Bytes()...)
-	packed = append(packed, common.BigToHash(op.MaxFeePerGas).Bytes()...)
-	packed = append(packed, common.BigToHash(op.MaxPriorityFeePerGas).Bytes()...)
+	packed = append(packed, common.BigToHash(safeBig(op.MaxFeePerGas)).Bytes()...)
+	packed = append(packed, common.BigToHash(safeBig(op.MaxPriorityFeePerGas)).Bytes()...)
 	packed = append(packed, crypto.Keccak256(op.PaymasterAndData)...)
 
 	return common.BytesToHash(crypto.Keccak256(packed))
@@ -383,4 +408,11 @@ func (ep *EntryPoint) SimulateValidation(statedb StateDB, op *UserOperation) (*V
 		return &ValidationResult{SigFailed: true}, nil, err
 	}
 	return &ValidationResult{SigFailed: false}, pmCtx, nil
+}
+
+func safeBig(v *big.Int) *big.Int {
+	if v == nil {
+		return new(big.Int)
+	}
+	return v
 }
